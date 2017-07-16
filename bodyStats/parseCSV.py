@@ -11,6 +11,8 @@ def parseRHR(dayRHR, rhr):
     dayRHR.append(dayTemp)
     rhr.append(rhrTemp.rstrip('\n'))
 
+  f.close()
+
 def parseSleep(daySlp, sleep):
   f = open('slp_09jul2017.csv', 'r')
   sleepData = f.readlines()[2:]
@@ -21,6 +23,8 @@ def parseSleep(daySlp, sleep):
 
     daySlp.append(dayTemp)
     sleep.append(sleepFractionTemp.rstrip('\n'))
+
+  f.close()
 
 def parseStep(dayStp, steps):
   f = open('stp_09jul2017.csv', 'r')
@@ -33,4 +37,5 @@ def parseStep(dayStp, steps):
     dayStp.append(dayTemp)
     steps.append(stepTemp.rstrip('\n'))
 
+  f.close()
 
