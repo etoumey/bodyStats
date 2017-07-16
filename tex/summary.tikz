@@ -1,5 +1,5 @@
 \begin{tikzpicture}
-\pgfdeclareverticalshading{stefan}{100bp}{
+\pgfdeclareverticalshading{shadingScheme}{100bp}{
 color(0bp)=(blue!50!black);
 color(25bp)=(blue!50!black);
 color(50bp)=(blue);
@@ -12,6 +12,6 @@ color(100bp)=(red!50!black)
 }
   \begin{axis}[xlabel=Date, ylabel=RHR, colormap/cool, colorbar, view = {0}{90}]
     \addplot[only marks, blue] table [x=date, y=RHR, col sep=comma, blue ] {database.csv};
-    \addplot[ybar,shading=stefan] table [x=date, y=sleep,  col sep=comma] {database.csv} \closedcycle;
+    \addplot[ybar,shading=shadingScheme] table [x=date, y=sleep,  col sep=comma] {database.csv} \closedcycle;
   \end{axis}
 \end{tikzpicture}
