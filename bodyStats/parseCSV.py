@@ -1,7 +1,7 @@
 def parseRHR(dayRHR, rhr):
 
   # open a sample file and ignore the first two lines (headers)
-  f = open('rhr_29apr2017.csv', 'r')
+  f = open('missingDay.csv', 'r')
   rhrData = f.readlines()[2:]
 
   # loop over the file lines and parse the data
@@ -10,7 +10,6 @@ def parseRHR(dayRHR, rhr):
 
     dayRHR.append(dayTemp)
     rhr.append(rhrTemp.rstrip('\n'))
-
 
 def parseSleep(daySlp, sleep):
   f = open('slp_09jul2017.csv', 'r')
@@ -33,4 +32,5 @@ def parseStep(dayStp, steps):
 
     dayStp.append(dayTemp)
     steps.append(stepTemp.rstrip('\n'))
+
 
