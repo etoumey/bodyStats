@@ -1,8 +1,4 @@
-def parseRHR():
-
-  # define the empty lists
-  day = []
-  rhr = []
+def parseRHR(day, rhr):
 
   # open a sample file and ignore the first two lines (headers)
   f = open('rhr_29apr2017.csv', 'r')
@@ -16,4 +12,3 @@ def parseRHR():
     rhr.append(rhrTemp.rstrip('\n'))
 
 
-  print day, rhr
