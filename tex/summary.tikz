@@ -1,0 +1,6 @@
+\begin{tikzpicture}
+  \begin{axis}
+    \addplot table [x=date, y=RHR, col sep=comma] {database.csv};
+    \addplot table [x=date, y=sleep, col sep=comma] {database.csv};
+  \end{axis}
+\end{tikzpicture}    

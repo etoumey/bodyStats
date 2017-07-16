@@ -1,7 +1,7 @@
 def parseRHR(day, rhr):
 
   # open a sample file and ignore the first two lines (headers)
-  f = open('rhr_29apr2017.csv', 'r')
+  f = open('missingDay.csv', 'r')
   rhrData = f.readlines()[2:]
 
   # loop over the file lines and parse the data
@@ -10,5 +10,3 @@ def parseRHR(day, rhr):
 
     day.append(dayTemp)
     rhr.append(rhrTemp.rstrip('\n'))
-
-
