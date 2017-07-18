@@ -1,5 +1,0 @@
-\begin{tikzpicture}
-  \begin{axis}[colormap/cool, colorbar, view={0}{90}]
-    \addplot3[scatter, only marks] table[x=date, y=RHR, z=sleep,  col sep=comma] {database.csv};
-  \end{axis}
-\end{tikzpicture}
