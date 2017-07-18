@@ -1,17 +1,17 @@
 \begin{tikzpicture}
 \pgfdeclareverticalshading{shadingScheme}{100bp}{
-color(0bp)=(blue!50!black);
-color(25bp)=(blue!50!black);
+color(0bp)=(blue!50!red);
+color(25bp)=(blue!50!red);
 color(50bp)=(blue);
 color(55bp)=(green);
 color(60bp)=(yellow);
 color(65bp)=(orange);
-color(70bp)=(red);
-color(75bp)=(red!50!black);
-color(100bp)=(red!50!black)
+color(70bp)=(red!10!blue);
+color(75bp)=(red!50!blue);
+color(100bp)=(red!50!blue)
 }
   \begin{axis}[xlabel=Date, ylabel=RHR, colormap/cool, colorbar, view = {0}{90}]
     \addplot[only marks, blue] table [x=date, y=RHR, col sep=comma, blue ] {database.csv};
-    \addplot[ybar,shading=shadingScheme] table [x=date, y=sleep,  col sep=comma] {database.csv} \closedcycle;
+    \addplot[shading=shadingScheme] table [x=date, y=sleep,  col sep=comma] {database.csv} \closedcycle;
   \end{axis}
 \end{tikzpicture}
