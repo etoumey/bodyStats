@@ -65,4 +65,6 @@ DBFileHandle.close()
 
 #while databaseMatchFlag == 0:
   
+for dow in dayRHR:
+  print dow
 
