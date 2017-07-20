@@ -12,6 +12,12 @@ rhr    = []
 sleep  = []
 steps  = []
 
+# empty lists for importing the database
+dayDB = [] 
+dowDB = []
+rhrDB = []
+slpDB = []
+
 # parse the data files from Garmin Connect
 parseCSV.parseRHR(dayRHR, rhr)
 
@@ -38,14 +44,18 @@ DBFileHandle.seek(0, 2)
 EOFPointer = DBFileHandle.tell() # return location of EOF pointer
 DBFileHandle.seek(max(EOFPointer-1024, 0), 0) # move pointer back 1K
 DBEnd = DBFileHandle.readlines() # read to end
-DBEnd = DBEnd[-10:] # only need last seven lines
+DBEnd = DBEnd[-7:] # only need last seven lines
 
 # Parse the info as in parseCSV
 for line in DBEnd:
-  dayTemp, rhrTemp = line.split(",")
+  dayTemp, dowTemp, rhrTemp, sleepTemp = line.split(",")
 
-  dayRHR.append(dayTemp)
-  rhr.append(rhrTemp.rstrip('\n'))
+  dayDB.append(dayTemp)
+  dowDB.append(dowTemp)
+  rhrDB.append(rhrTemp)
+  slpDB.append(sleepTemp.rstrip('\n'))
+
+print dayDB, dowDB, rhrDB, slpDB
 
 # in the future, don't close the DB until it's updated
 DBFileHandle.close()
