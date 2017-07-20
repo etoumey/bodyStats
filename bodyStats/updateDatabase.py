@@ -1,9 +1,6 @@
 #! /usr/bin/env/python
 import parseCSV
 
-# local variable definition
-databaseMatchFlag = 0
-
 # define the empty lists
 dayRHR = []
 daySlp = []
@@ -11,6 +8,11 @@ dayStp = []
 rhr    = []
 sleep  = []
 steps  = []
+
+
+# local variable definition
+databaseMatchFlag = 0
+
 
 # empty lists for importing the database
 dayDB = [] 
@@ -37,7 +39,7 @@ print dayStp, steps
 # load the database in reverse for comparison
 # note, if the file is too big to store in memory, this will not work
 
-DBFileHandle = open('../tex/database.csv','r')
+DBFileHandle = open('databaseJT.csv','r')
 
 # read from EOF
 DBFileHandle.seek(0, 2)
