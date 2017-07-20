@@ -1,6 +1,9 @@
 #! /usr/bin/env/python
 import parseCSV
 
+# local variable definition
+databaseMatchFlag = 0
+
 # define the empty lists
 dayRHR = []
 daySlp = []
@@ -16,12 +19,40 @@ parseCSV.parseSleep(daySlp, sleep)
 
 parseCSV.parseStep(dayStp, steps)
 
-
-
-
 # test print
 print dayRHR, rhr
 
 print daySlp, sleep
 
 print dayStp, steps
+
+## UPDATE DATABASE
+
+# load the database in reverse for comparison
+# note, if the file is too big to store in memory, this will not work
+
+DBFileHandle = open('../tex/database.csv','r')
+
+# read from EOF
+DBFileHandle.seek(0, 2)
+EOFPointer = DBFileHandle.tell() # return location of EOF pointer
+DBFileHandle.seek(max(EOFPointer-1024, 0), 0) # move pointer back 1K
+DBEnd = DBFileHandle.readlines() # read to end
+DBEnd = DBEnd[-10:] # only need last seven lines
+
+# Parse the info as in parseCSV
+for line in DBEnd:
+  dayTemp, rhrTemp = line.split(",")
+
+  dayRHR.append(dayTemp)
+  rhr.append(rhrTemp.rstrip('\n'))
+
+# in the future, don't close the DB until it's updated
+DBFileHandle.close()
+
+
+
+
+#while databaseMatchFlag == 0:
+  
+
