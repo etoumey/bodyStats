@@ -10,8 +10,10 @@ class healthDatabase():
            health data from the database *.csv file.'''
 
         self.source = databaseFilename
+        self.rawData = {}
 
         self.loadExternalData()
+
 
     def loadExternalData(self):
         '''Open an existing *.csv file that contains, column-wise: 
@@ -20,22 +22,19 @@ class healthDatabase():
                Sleep: hrs
                RHR:   bpm'''
 
-        with open(self.source, 'r') as f:
+        with open(self.source, 'r') as dbFile:
             # Assume the file exists. Create a csv reader object that contains
             # the information from the file
-            reader = csv.reader(f)
+            reader = csv.reader(dbFile)
 
             # Assume the first row is a column header and skip
             headers = next(reader)
 
-            rawData = {}
-
             for row in reader:
                 dateKey = row[0]
                 # Add duplicate row handling here
-                rawData[dateKey] = row[1:]
+                self.rawData[dateKey] = row[1:]
 
-        self.rawData = rawData
 
     def printDatabase(self):
 
