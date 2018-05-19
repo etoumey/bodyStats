@@ -54,7 +54,7 @@ class healthDatabase():
 def main():
     '''Main driver function'''
 
-    healthDbJt = healthDatabase('database.csv')
+    healthDbJt = healthDatabase('userDb/database.csv')
 
     #healthDbJt.printDatabase()
 
