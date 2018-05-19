@@ -2,53 +2,46 @@ import csv
 
 
 class healthDatabase():
-    '''Class containing the '''
+    '''This class contains the data structure for the health data as well as
+       methods to import, print, and analyze the data.'''
 
     def __init__(self, databaseFilename):
+        '''Upon instantiation of this object, automatically load the external
+           health data from the database *.csv file.'''
+
         self.source = databaseFilename
 
         self.loadExternalData()
 
     def loadExternalData(self):
-        ''''''
-        with open(self.source, 'rb') as f:
+        '''Open an existing *.csv file that contains, column-wise: 
+               Date:  YYYYMMDD
+               Steps
+               Sleep: hrs
+               RHR:   bpm'''
+
+        with open(self.source, 'r') as f:
+            # Assume the file exists. Create a csv reader object that contains
+            # the information from the file
             reader = csv.reader(f)
 
-            headers = reader.next()
-
-            print(headers)
+            # Assume the first row is a column header and skip
+            headers = next(reader)
 
             rawData = {}
 
-            for h in headers:
-                rawData[h] = []
-            for r in reader:
-                for h, v in zip(headers, r):
-                    rawData[h].append(v)
+            for row in reader:
+                dateKey = row[0]
+                # Add duplicate row handling here
+                rawData[dateKey] = row[1:]
 
-            print(rawData)
-            # 'workers', 'constant', 'age']
-            # >>> column = {}
-            # >>> for h in headers:
-            # ...    column[h] = []
-            # ...
-            # >>> column
-            # {'workers': [], 'constant': [], 'age': []}
-            # >>> for row in reader:
-            # ...   for h, v in zip(headers, row):
-            # ...     column[h].append(v)
-
-
-
-
-
-        #return(reader)
-        self.rawData = reader
+        self.rawData = rawData
 
     def printDatabase(self):
 
         for row in self.rawData:
-            print row
+            print("Date: %s" % row)
+            print(self.rawData[row])
 
 
 def main():
@@ -56,7 +49,7 @@ def main():
 
     healthDbJt = healthDatabase('userDb/database.csv')
 
-    #healthDbJt.printDatabase()
+    healthDbJt.printDatabase()
 
     
 if __name__ == "__main__":
