@@ -1,12 +1,23 @@
 from selenium.webdriver import Firefox
 from selenium.webdriver.firefox.options import Options
+
+#Setup browser as headless
 opts = Options()
-opts.set_headless()
-assert opts.headless
+#opts.set_headless()
+#assert opts.headless
 browser = Firefox(options=opts)
-browser.get('https://duckduckgo.com')
-search_form = browser.find_element_by_id('search_form_input_homepage')
-search_form.send_keys('hi')
-search_form.submit()
-results = browser.find_elements_by_class_name('result')
-print(results[0].text)
+
+#Head to garmin connect login page
+browser.get('https://connect.garmin.com/modern/report')
+#input field is within an iframe
+frame = browser.find_element_by_id('gauth-widget-frame-gauth-widget')
+browser.switch_to.frame(frame)
+
+#populate username and password
+usernameField = browser.find_element_by_id("username")
+usernameField.send_keys('etoumey@gmail.com')
+passwordField = browser.find_element_by_id("password")
+passwordField.send_keys("PASSWORD")
+passwordField.submit()
+
+
