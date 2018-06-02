@@ -42,6 +42,14 @@ class healthDatabase():
             print("Date: %s" % row)
             print(self.rawData[row])
 
+    def getDailyData(self):
+        dateQuery = input("Enter date query [YYYYMMDD]: ")
+
+        #try:
+        print(self.rawData[dateQuery])
+        #except:
+           # print("Date not present in DB...")
+
 
 def main():
     '''Main driver function'''
@@ -49,6 +57,8 @@ def main():
     healthDbJt = healthDatabase('userDb/database.csv')
 
     healthDbJt.printDatabase()
+
+    healthDbJt.getDailyData()
 
     
 if __name__ == "__main__":
