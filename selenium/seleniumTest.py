@@ -1,5 +1,8 @@
 from selenium.webdriver import Firefox
 from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+
 
 #Setup browser as headless
 opts = Options()
@@ -17,7 +20,16 @@ browser.switch_to.frame(frame)
 usernameField = browser.find_element_by_id("username")
 usernameField.send_keys('etoumey@gmail.com')
 passwordField = browser.find_element_by_id("password")
-passwordField.send_keys("PASSWORD")
+passwordField.send_keys("passWORD")
 passwordField.submit()
 
+exportXpath = "/html/body/div[1]/div[3]/div/div[3]/div/div[1]/div[2]/div/button"
 
+try:
+    element = WebDriverWait(browser, 10).until(
+        EC.presence_of_element_located((By.ID, "button"))
+    )
+finally:
+    browser.quit()
+
+#browser.find_element_by_class_name("page-navigation-action js-export-btn").click()
