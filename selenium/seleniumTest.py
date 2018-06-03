@@ -25,8 +25,3 @@ FID.close()
 usernameField.send_keys(credentials[0])
 passwordField.send_keys(credentials[1])
 passwordField.submit()
-
-delay = 10 # seconds
-button = WebDriverWait(browser, delay).until(EC.presence_of_element_located((By.ID, 'notify-agent')))
-print "Page is ready!"
-
