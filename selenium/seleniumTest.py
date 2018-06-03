@@ -18,18 +18,12 @@ browser.switch_to.frame(frame)
 
 #populate username and password
 usernameField = browser.find_element_by_id("username")
-usernameField.send_keys('etoumey@gmail.com')
 passwordField = browser.find_element_by_id("password")
-passwordField.send_keys("passWORD")
+FID = open("credentials.pass", "r")
+credentials = FID.readlines()
+usernameField.send_keys(credentials[0])
+passwordField.send_keys(credentials[1])
 passwordField.submit()
 
-exportXpath = "/html/body/div[1]/div[3]/div/div[3]/div/div[1]/div[2]/div/button"
 
-try:
-    element = WebDriverWait(browser, 10).until(
-        EC.presence_of_element_located((By.ID, "button"))
-    )
-finally:
-    browser.quit()
 
-#browser.find_element_by_class_name("page-navigation-action js-export-btn").click()
