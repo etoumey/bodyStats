@@ -3,7 +3,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
-
+import time
 
 #Setup browser as headless
 opts = Options()
@@ -12,7 +12,7 @@ opts = Options()
 browser = Firefox(options=opts)
 
 #Head to garmin connect login page
-browser.get('https://connect.garmin.com/modern/report')
+browser.get('https://connect.garmin.com/modern/report/60/wellness/last_seven_days')
 #input field is within an iframe
 frame = browser.find_element_by_id('gauth-widget-frame-gauth-widget')
 browser.switch_to.frame(frame)
@@ -36,13 +36,15 @@ element = WebDriverWait(browser, 10).until(
     )
 
 # Health and Fitness Tab
-healthAndFitnessXpath = '//*[@id="accordion2"]/div[3]/div[1]/a'
-browser.find_element_by_xpath(healthAndFitnessXpath).click()
+#healthAndFitnessXpath = '//*[@id="accordion2"]/div[3]/div[1]/a'
+#browser.find_element_by_xpath(healthAndFitnessXpath).click()
 
 # RHR tab
-browser.find_element_by_id('60').click()
-
-
+#browser.find_element_by_id('60').click()
+#browser.navigate().refresh()
 # Export button
 exportXpath = '//*[@id="pageContainer"]/div/div[1]/div[2]/div/button'
 browser.find_element_by_xpath(exportXpath).click()
+
+
+browser.quit()
