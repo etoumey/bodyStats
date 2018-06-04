@@ -2,6 +2,7 @@ from selenium.webdriver import Firefox
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
 
 
 #Setup browser as headless
@@ -25,3 +26,23 @@ FID.close()
 usernameField.send_keys(credentials[0])
 passwordField.send_keys(credentials[1])
 passwordField.submit()
+
+
+# Inside reports window, switch to default frame
+browser.switch_to_default_content()
+# Wait for page to load
+element = WebDriverWait(browser, 10).until(
+        EC.presence_of_element_located((By.ID, "pageContainer"))
+    )
+
+# Health and Fitness Tab
+healthAndFitnessXpath = '//*[@id="accordion2"]/div[3]/div[1]/a'
+browser.find_element_by_xpath(healthAndFitnessXpath).click()
+
+# RHR tab
+browser.find_element_by_id('60').click()
+
+
+# Export button
+exportXpath = '//*[@id="pageContainer"]/div/div[1]/div[2]/div/button'
+browser.find_element_by_xpath(exportXpath).click()
