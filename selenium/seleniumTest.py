@@ -5,6 +5,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 import time
 
+#profile = webdriver.FirefoxProfile()
+#profile.set_preference('browser.download.folderList', 2) # custom location
+#profile.set_preference('browser.download.manager.showWhenStarting', False)
+#profile.set_preference('browser.download.dir', '/tmp')
+#profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'text/csv')
+
 #Setup browser as headless
 opts = Options()
 #opts.set_headless()
@@ -47,4 +53,4 @@ exportXpath = '//*[@id="pageContainer"]/div/div[1]/div[2]/div/button'
 browser.find_element_by_xpath(exportXpath).click()
 
 
-browser.quit()
+#browser.quit()
