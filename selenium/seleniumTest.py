@@ -64,7 +64,8 @@ def main():
     passwordField = browser.find_element_by_id("password")
     passwordField.send_keys(credentials[1])
     passwordField.submit()
-    downloadReport(browser)
+    for x in range(0,200):
+        downloadReport(browser)
     
 
 if __name__ == "__main__":
