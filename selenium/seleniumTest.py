@@ -20,8 +20,11 @@ browser = Firefox(options=opts)
 #Head to garmin connect login page
 browser.get('https://connect.garmin.com/modern/report/60/wellness/last_seven_days')
 #input field is within an iframe
+
 frame = browser.find_element_by_id('gauth-widget-frame-gauth-widget')
 browser.switch_to.frame(frame)
+
+element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.ID, "username")))
 
 #populate username and password
 usernameField = browser.find_element_by_id("username")
