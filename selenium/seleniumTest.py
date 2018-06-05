@@ -4,6 +4,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
+from os import getcwd
 
 def queryCredentials():
 
@@ -13,19 +14,33 @@ def queryCredentials():
 
     return cred
 
+def downloadReport(browser):
+	# Inside reports window, switch to default frame
+    browser.switch_to_default_content()
+    # Wait for page to load
+    element = WebDriverWait(browser, 10).until(
+        EC.presence_of_element_located((By.ID, "pageContainer"))
+    )
+
+    exportXpath = '//*[@id="pageContainer"]/div/div[1]/div[2]/div/button'
+    browser.find_element_by_xpath(exportXpath).click()
+    arrowXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[1]/div/span[1]/button[1]'
+    browser.find_element_by_xpath(arrowXpath).click()
+    #browser.quit()
+
 def main():
 
     credentials = queryCredentials()
-
+    downloadDir = getcwd()
     # Set Firefox preferences -- specifically to download *.csv files w/o raising a confirmation dialog box
     ffProfile = webdriver.FirefoxProfile()
     ffProfile.set_preference('browser.download.folderList', 2) # custom location
     ffProfile.set_preference('browser.download.manager.showWhenStarting', False)
-    ffProfile.set_preference('browser.download.dir', '/tmp')
+    ffProfile.set_preference('browser.download.dir', downloadDir)
     ffProfile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'text/csv')
 
     #Setup browser as headless
-    #pts = Options()
+    #opts = Options()
     #opts.set_headless()
     #assert opts.headless
     #browser = Firefox(options=opts)
@@ -49,27 +64,8 @@ def main():
     passwordField = browser.find_element_by_id("password")
     passwordField.send_keys(credentials[1])
     passwordField.submit()
-
-    # Inside reports window, switch to default frame
-    browser.switch_to_default_content()
-    # Wait for page to load
-    element = WebDriverWait(browser, 10).until(
-        EC.presence_of_element_located((By.ID, "pageContainer"))
-    )
-
-    # Health and Fitness Tab
-    #healthAndFitnessXpath = '//*[@id="accordion2"]/div[3]/div[1]/a'
-    #browser.find_element_by_xpath(healthAndFitnessXpath).click()
-
-    # RHR tab
-    #browser.find_element_by_id('60').click()
-    #browser.navigate().refresh()
-    # Export button
-    exportXpath = '//*[@id="pageContainer"]/div/div[1]/div[2]/div/button'
-    browser.find_element_by_xpath(exportXpath).click()
-
-
-    #browser.quit()
+    downloadReport(browser)
+    
 
 if __name__ == "__main__":
     main()
