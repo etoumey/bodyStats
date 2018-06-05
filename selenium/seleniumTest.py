@@ -60,11 +60,13 @@ def main():
     #populate username and password
     usernameField = browser.find_element_by_id("username")
     usernameField.send_keys(credentials[0])
+    element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.ID, "password")))
 
     passwordField = browser.find_element_by_id("password")
     passwordField.send_keys(credentials[1])
     passwordField.submit()
-    for x in range(0,200):
+    requiredWeeks = 1
+    for x in range(0,requiredWeeks):
         downloadReport(browser)
     
 
