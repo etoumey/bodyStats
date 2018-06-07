@@ -5,6 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from os import getcwd
+import time
 
 def queryCredentials():
 
@@ -56,14 +57,18 @@ def main():
     browser.switch_to.frame(frame)
 
     element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.ID, "username")))
+    #element = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.ID, 'username')))
 
     #populate username and password
-    usernameField = browser.find_element_by_id("username")
+    usernameField = browser.find_element_by_name("username").click()
+    usernameField = browser.find_element_by_name("username")#.send_keys(credentials[0])
     usernameField.send_keys(credentials[0])
+  
     element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.ID, "password")))
 
     passwordField = browser.find_element_by_id("password")
     passwordField.send_keys(credentials[1])
+
     passwordField.submit()
     requiredWeeks = 1
     for x in range(0,requiredWeeks):
