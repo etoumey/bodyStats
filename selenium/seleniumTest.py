@@ -5,6 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from os import getcwd
+from datetime import date
 
 def queryCredentials():
 
@@ -26,7 +27,20 @@ def downloadReport(browser):
     browser.find_element_by_xpath(exportXpath).click()
     arrowXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[1]/div/span[1]/button[1]'
     browser.find_element_by_xpath(arrowXpath).click()
-    #browser.quit()
+
+def reportMerge(downloadDir):
+	today = str(date.today())
+	today = today.split("-")
+	day = today[2]
+	month = today[1]
+	year = today[0]
+
+	
+
+
+
+
+
 
 def main():
 
@@ -65,9 +79,18 @@ def main():
     passwordField = browser.find_element_by_id("password")
     passwordField.send_keys(credentials[1])
     passwordField.submit()
-    requiredWeeks = 1
+
+    requiredWeeks = 0
     for x in range(0,requiredWeeks):
-        downloadReport(browser)
+        try:
+        	downloadReport(browser)
+        except:
+        	print "Download Failed, try again later"
+        	exit()
+
+    browser.quit()
+    reportMerge(downloadDir)
+
     
 
 if __name__ == "__main__":
