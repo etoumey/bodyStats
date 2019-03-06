@@ -204,7 +204,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="0.98994949"
      inkscape:cx="344.79133"
-     inkscape:cy="911.94726"
+     inkscape:cy="507.88624"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -223,7 +223,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -357,5 +357,23 @@
        d="m 165.59938,124.37692 v 19.41832"
        id="path1535-0-2"
        inkscape:connector-curvature="0" />
-  </g>
+    <ellipse
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#ff00cc;stroke-width:3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path877"
+       cx="33.275055"
+       cy="167.77518"
+       rx="27.929667"
+       ry="18.040693" />
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot879"
+       style="font-style:normal;font-weight:normal;font-size:26.66666603px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       transform="matrix(0.26458333,0,0,0.26458333,6.9490077,2.9399648)"><flowRegion
+         id="flowRegion881"><rect
+           id="rect883"
+           width="75.761429"
+           height="37.375683"
+           x="63.63961"
+           y="602.29114" /></flowRegion><flowPara
+         id="flowPara885">Tripy</flowPara></flowRoot>  </g>
 </svg>

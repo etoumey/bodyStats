@@ -10,7 +10,7 @@ from datetime import date
 import time
 
 def queryCredentials():
-
+	#This function loads credentials from the specified file. May be replaced with a user prompt not in development
 	fid = open("credentials.pass", 'r')
 	cred = fid.readlines()
 	fid.close()
@@ -18,18 +18,19 @@ def queryCredentials():
 	return cred
 
 def downloadReport(browser):
+	waitTime = 60 #Seconds to wait on landing page to load
+	exportXpath = '//*[@id="pageContainer"]/div/div[1]/div[2]/div/button'
+
 	# Inside reports window, switch to default frame
 	browser.switch_to_default_content()
 	# Wait for page to load
-	time.sleep(5)
-	element = WebDriverWait(browser, 10).until(
-		EC.presence_of_element_located((By.ID, "pageContainer"))
-	)
 
-	exportXpath = '//*[@id="pageContainer"]/div/div[1]/div[2]/div/button'
+	element = WebDriverWait(browser, waitTime).until(
+		EC.presence_of_element_located((By.XPATH, exportXpath))
+	)
 	browser.find_element_by_xpath(exportXpath).click()
-	arrowXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[1]/button[1]'
-	browser.find_element_by_xpath(arrowXpath).click()
+	#arrowXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[1]/button[1]'
+	#browser.find_element_by_xpath(arrowXpath).click()
 
 def reportMerge(downloadDir):
 	today = str(date.today())
@@ -90,14 +91,17 @@ def main():
 		print "Login Failure"
 
 
-	requiredWeeks = 5
-	for x in range(0,requiredWeeks):
-		#try:
+	try:
 		downloadReport(browser)
-		print "Week %d Success!" % (x + 1)
-#		except:
-#			print "Download Failed, try again later"
-#			exit()
+		print "RHR Download Success!"
+		browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
+		downloadReport(browser)
+		print "Stress Download Success!"
+		browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
+		downloadReport(browser)
+		print "Sleep Download Success!"
+	except:
+			print "Error fetching reports..."
 
 	browser.quit()
 	reportMerge(downloadDir)
