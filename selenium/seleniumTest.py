@@ -5,7 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
-from os import getcwd
+from os import getcwd,remove, listdir
 from datetime import date
 import time
 
@@ -26,7 +26,7 @@ def downloadReport(browser):
 	# Wait for page to load
 
 	element = WebDriverWait(browser, waitTime).until(
-		EC.presence_of_element_located((By.XPATH, exportXpath))
+		EC.element_to_be_clickable((By.XPATH, exportXpath))
 	)
 	browser.find_element_by_xpath(exportXpath).click()
 	#arrowXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[1]/button[1]'
@@ -60,6 +60,11 @@ def browserInit(downloadDir):
 	
 	return browser
 
+def cleanUp(downloadDir):
+	for file in listdir(downloadDir):
+		if file.endswith(".csv"):
+			remove(file)
+
 
 
 
@@ -91,17 +96,18 @@ def main():
 		print "Login Failure"
 
 
-	try:
-		downloadReport(browser)
-		print "RHR Download Success!"
-		browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
-		downloadReport(browser)
-		print "Stress Download Success!"
-		browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
-		downloadReport(browser)
-		print "Sleep Download Success!"
-	except:
-			print "Error fetching reports..."
+	#try:
+	downloadReport(browser)
+	print "RHR Download Success!"
+	browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
+	downloadReport(browser)
+	print "Stress Download Success!"
+	browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
+	downloadReport(browser)
+	print "Sleep Download Success!"
+	#except:
+	#	print "Error fetching reports..."
+	#	cleanUp(downloadDir)
 
 	browser.quit()
 	reportMerge(downloadDir)
