@@ -24,11 +24,11 @@ def downloadReport(browser):
 	# Inside reports window, switch to default frame
 	browser.switch_to_default_content()
 	# Wait for page to load
-
 	element = WebDriverWait(browser, waitTime).until(
 		EC.element_to_be_clickable((By.XPATH, exportXpath))
 	)
 	browser.find_element_by_xpath(exportXpath).click()
+	# Only need arrow if you want to do multiple weeks at a time. 
 	#arrowXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[1]/button[1]'
 	#browser.find_element_by_xpath(arrowXpath).click()
 
@@ -51,7 +51,7 @@ def browserInit(downloadDir):
 
 	#Setup browser as headless
 	opts = Options()
-	opts.headless = False
+	opts.headless = True
 
 	# Instantiate a Firefox browser object with the above-specified profile settings
 	print "Browser preferences configured"
@@ -96,18 +96,18 @@ def main():
 		print "Login Failure"
 
 
-	#try:
-	downloadReport(browser)
-	print "RHR Download Success!"
-	browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
-	downloadReport(browser)
-	print "Stress Download Success!"
-	browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
-	downloadReport(browser)
-	print "Sleep Download Success!"
-	#except:
-	#	print "Error fetching reports..."
-	#	cleanUp(downloadDir)
+	try:
+		downloadReport(browser)
+		print "RHR Download Success!"
+		browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
+		downloadReport(browser)
+		print "Stress Download Success!"
+		browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
+		downloadReport(browser)
+		print "Sleep Download Success!"
+	except:
+		print "Error fetching reports..."
+		cleanUp(downloadDir)
 
 	browser.quit()
 	reportMerge(downloadDir)
