@@ -18,7 +18,7 @@ def queryCredentials():
 	return cred
 
 def downloadReport(browser):
-	waitTime = 60 #Seconds to wait on landing page to load
+	waitTime = 20 #Seconds to wait on landing page to load
 	exportXpath = '//*[@id="pageContainer"]/div/div[1]/div[2]/div/button'
 
 	# Inside reports window, switch to default frame
@@ -51,7 +51,7 @@ def browserInit(downloadDir):
 
 	#Setup browser as headless
 	opts = Options()
-	opts.headless = True
+	#opts.headless = True
 
 	# Instantiate a Firefox browser object with the above-specified profile settings
 	print "Browser preferences configured"
@@ -74,9 +74,10 @@ def main():
 	#   Head to garmin connect login page
 	browser = browserInit(downloadDir)
 
-	browser.get('https://connect.garmin.com/modern/report/60/wellness/last_seven_days')
+	browser.get('https://connect.garmin.com/modern/')
 
 	#input field is within an iframe
+	element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.ID, "gauth-widget-frame-gauth-widget")))
 	frame = browser.find_element_by_id('gauth-widget-frame-gauth-widget')
 	browser.switch_to.frame(frame)
 
@@ -97,6 +98,11 @@ def main():
 
 
 	try:
+		browser.switch_to_default_content()
+		element = WebDriverWait(browser, 20).until(
+			EC.element_to_be_clickable((By.XPATH, '/html/body/div/div[3]/header/div[1]/div'))
+		)
+		browser.get('https://connect.garmin.com/modern/report/60/wellness/last_seven_days')
 		downloadReport(browser)
 		print "RHR Download Success!"
 		browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
