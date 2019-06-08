@@ -6,14 +6,15 @@ def createConnection():
 	return connection
 
 def createTable(connection):
-	sqlCreateTable = """ CREATE TABLE IF NOT EXISTS userData ( id integer PRIMARY KEY, date text NOT NULL, RHR text, SLEEP text, STRESS text ); """
+	sqlCreateTable = """ CREATE TABLE IF NOT EXISTS userData (date text NOT NULL, RHR real, SLEEP real, STRESS real, ATL real, CTL real ); """
 	cursor = connection.cursor()
 	cursor.execute(sqlCreateTable)
 
 def writeData(connection):
-	sql = ''' INSERT INTO userData(date, RHR, SLEEP, STRESS) VALUES(?,?,?,?)'''
+	#sql = ''' INSERT INTO userData(date, RHR, SLEEP, STRESS, ATL, CTL) VALUES(?,?,?,?,?,?)'''
 	cursor = connection.cursor()
-	cursor.execute(sql,('hi', 10, 20, 30))
+	cursor.execute("INSERT INTO userData VALUES ('2019-06-08', 48, 20, 30, 10, 10)")
+	connection.commit()
 	return cursor.lastrowid
 
 

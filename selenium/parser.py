@@ -1,6 +1,27 @@
 import json
 import csv
 
+
+def initializeUserData():
+	intiialize = '''
+	{
+		"day": "2019-06-08"
+		[
+			{
+				"stress": "0",
+				"sleep": "0",
+				"rhr": "0",
+				"atl": "0",
+				"ctl": "0"
+			}
+		]
+	}
+	'''
+	userData = json.loads(intiialize)
+	print userData['day']
+	return userData
+
+
 def parseRHR():
 	dataRHR = [0,0,0,0,0,0]
 	ii = 0
@@ -42,11 +63,17 @@ def parseStress():
 
 
 
-
-with open('userData', 'r') as fh:
-	userData = json.load(fh)
-	fh.close()
-
+try:
+	with open('userData', 'r') as fh:
+		userData = json.load(fh)
+		fh.close()
+		print "hi"
+except:
+	userData = initializeUserData()
+print userData
 dataRHR = parseRHR()
 dataSleep = parseSleep()
 dataStress = parseStress()
+with open('userData', 'w+') as fh:
+	json.dump(userData, fh)
+	fh.close()
