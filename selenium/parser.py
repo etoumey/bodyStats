@@ -37,13 +37,14 @@ def getFileList():
 def parseRHR(rhrFiles):
 	dataRHR = [0,0,0,0,0,0]
 	ii = 0
-	with open(rhrFiles[0], 'r') as fh:
-		tempRHR = csv.reader(fh)
-		for rows in tempRHR:
-			if (ii > 1 and ii <= 7):
 
-				dataRHR[ii-2] = float(rows[1])
-			ii = ii + 1
+	for files in rhrFiles:
+		with open(files, 'r') as fh:
+			tempRHR = csv.reader(fh)
+			for rows in tempRHR:
+				if (ii > 1 and ii <= 7):
+					dataRHR[ii-2] = float(rows[1])
+				ii = ii + 1
 		print dataRHR
 	return dataRHR
 
@@ -51,26 +52,33 @@ def parseRHR(rhrFiles):
 def parseSleep(sleepFiles):
 	dataSleep = [0,0,0,0,0,0]
 	ii = 0
-	with open(sleepFiles[0], 'r') as fh:
-		tempSleep = csv.reader(fh)
-		for rows in tempSleep:
-			if (ii > 1 and ii <= 7):
-				hours, minutes = rows[2].split(":")
-				minutes, garb = minutes.split(" ")
-				dataSleep[ii-2] = float(hours) + float(minutes) / 60.0
-			ii = ii + 1
+	
+
+	for files in sleepFiles: 
+		with open(sleepFiles[0], 'r') as fh:
+			tempSleep = csv.reader(fh)
+			for rows in tempSleep:
+				if (ii > 1 and ii <= 7):
+					hours, minutes = rows[2].split(":")
+					minutes, garb = minutes.split(" ")
+					dataSleep[ii-2] = float(hours) + float(minutes) / 60.0
+				ii = ii + 1
+		print dataSleep
 	return dataSleep
 
 
 def parseStress(stressFiles):
 	dataStress = [0,0,0,0,0,0]
 	ii = 0
-	with open(stressFiles[0], 'r') as fh:
-		tempStress = csv.reader(fh)
-		for rows in tempStress:
-			if (ii > 1 and ii <= 7):
-				dataStress[ii-2] = float(rows[1])
-			ii = ii + 1
+
+	for files in stressFiles:
+		with open(stressFiles[0], 'r') as fh:
+			tempStress = csv.reader(fh)
+			for rows in tempStress:
+				if (ii > 1 and ii <= 7):
+					dataStress[ii-2] = float(rows[1])
+					ii = ii + 1
+		print dataStress
 	return dataStress
 
 
