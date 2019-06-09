@@ -1,6 +1,9 @@
 import json
 import csv
 import sqlite3
+from os import listdir
+import re
+
 
 
 def initializeUserData():
@@ -12,10 +15,29 @@ def initializeUserData():
 	return connection
 
 
-def parseRHR():
+def getFileList():
+	RHRFiles = []
+	stressFiles = []
+	sleepFiles = []
+
+	allFiles = listdir('.')
+	ii = 0
+	for files in allFiles:
+		if (re.search("RHR_\d{8}_\d{8}.csv", files)):
+			RHRFiles.append(files)
+		elif (re.search("SLEEP_\d{8}_\d{8}.csv", files)):
+			sleepFiles.append(files)
+		elif (re.search("STRESS_\d{8}_\d{8}.csv", files)):
+			stressFiles.append(files)
+
+	return RHRFiles, sleepFiles, stressFiles
+
+
+
+def parseRHR(rhrFiles):
 	dataRHR = [0,0,0,0,0,0]
 	ii = 0
-	with open('WELLNESS_RESTING_HEART_RATE.csv', 'r') as fh:
+	with open(rhrFiles[0], 'r') as fh:
 		tempRHR = csv.reader(fh)
 		for rows in tempRHR:
 			if (ii > 1 and ii <= 7):
@@ -26,10 +48,10 @@ def parseRHR():
 	return dataRHR
 
 
-def parseSleep():
+def parseSleep(sleepFiles):
 	dataSleep = [0,0,0,0,0,0]
 	ii = 0
-	with open('SLEEP_SLEEP_DURATION.csv', 'r') as fh:
+	with open(sleepFiles[0], 'r') as fh:
 		tempSleep = csv.reader(fh)
 		for rows in tempSleep:
 			if (ii > 1 and ii <= 7):
@@ -40,10 +62,10 @@ def parseSleep():
 	return dataSleep
 
 
-def parseStress():
+def parseStress(stressFiles):
 	dataStress = [0,0,0,0,0,0]
 	ii = 0
-	with open('WELLNESS_AVERAGE_STRESS.csv', 'r') as fh:
+	with open(stressFiles[0], 'r') as fh:
 		tempStress = csv.reader(fh)
 		for rows in tempStress:
 			if (ii > 1 and ii <= 7):
@@ -58,11 +80,15 @@ def parseStress():
 
 
 
-connection = initializeUserData()
 
-dataRHR = parseRHR()
-dataSleep = parseSleep()
-dataStress = parseStress()
+
+connection = initializeUserData()
+rhrFiles, sleepFiles, stressFiles = getFileList()
+dataRHR = parseRHR(rhrFiles)
+dataSleep = parseSleep(sleepFiles)
+dataStress = parseStress(stressFiles)
+
+
 #with open('userData', 'w+') as fh:#
 #	json.dump(userData, fh)
 #	fh.close()
