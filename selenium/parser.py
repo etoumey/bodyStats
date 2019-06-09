@@ -1,25 +1,15 @@
 import json
 import csv
+import sqlite3
 
 
 def initializeUserData():
-	intiialize = '''
-	{
-		"day": "2019-06-08"
-		[
-			{
-				"stress": "0",
-				"sleep": "0",
-				"rhr": "0",
-				"atl": "0",
-				"ctl": "0"
-			}
-		]
-	}
-	'''
-	userData = json.loads(intiialize)
-	print userData['day']
-	return userData
+	print "Initializing database..."
+	connection = sqlite3.connect('userData.db')
+	sqlCreateTable = """ CREATE TABLE IF NOT EXISTS userData (date text NOT NULL, RHR real, SLEEP real, STRESS real, ATL real, CTL real, PRIMARY KEY (date) ); """
+	cursor = connection.cursor()
+	cursor.execute(sqlCreateTable)
+	return connection
 
 
 def parseRHR():
@@ -29,8 +19,10 @@ def parseRHR():
 		tempRHR = csv.reader(fh)
 		for rows in tempRHR:
 			if (ii > 1 and ii <= 7):
+
 				dataRHR[ii-2] = float(rows[1])
 			ii = ii + 1
+		print dataRHR
 	return dataRHR
 
 
@@ -48,8 +40,6 @@ def parseSleep():
 	return dataSleep
 
 
-
-
 def parseStress():
 	dataStress = [0,0,0,0,0,0]
 	ii = 0
@@ -62,18 +52,17 @@ def parseStress():
 	return dataStress
 
 
+#def datesCheck(fileContents):
 
-try:
-	with open('userData', 'r') as fh:
-		userData = json.load(fh)
-		fh.close()
-		print "hi"
-except:
-	userData = initializeUserData()
-print userData
+
+
+
+
+connection = initializeUserData()
+
 dataRHR = parseRHR()
 dataSleep = parseSleep()
 dataStress = parseStress()
-with open('userData', 'w+') as fh:
-	json.dump(userData, fh)
-	fh.close()
+#with open('userData', 'w+') as fh:#
+#	json.dump(userData, fh)
+#	fh.close()

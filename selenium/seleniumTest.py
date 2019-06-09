@@ -5,9 +5,10 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
-from os import getcwd,remove, listdir
+from os import getcwd,remove, listdir, rename
 from datetime import date
 import time
+
 
 def queryCredentials():
 	#This function loads credentials from the specified file. May be replaced with a user prompt not in development
@@ -17,10 +18,11 @@ def queryCredentials():
 	print "Credentials sucessfully loaded..."
 	return cred
 
+
 def downloadReport(browser):
 	waitTime = 20 #Seconds to wait on landing page to load
 	exportXpath = '//*[@id="pageContainer"]/div/div[1]/div[2]/div/button'
-
+	dateXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[2]' 
 	# Inside reports window, switch to default frame
 	browser.switch_to_default_content()
 	# Wait for page to load
@@ -28,18 +30,75 @@ def downloadReport(browser):
 		EC.element_to_be_clickable((By.XPATH, exportXpath))
 	)
 	browser.find_element_by_xpath(exportXpath).click()
+
+
+	dateElement = browser.find_element_by_xpath(dateXpath)
+	dateRange = str(dateElement.text)
+
 	# Only need arrow if you want to do multiple weeks at a time. 
 	#arrowXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[1]/button[1]'
 	#browser.find_element_by_xpath(arrowXpath).click()
 
-def reportMerge(downloadDir):
-	today = str(date.today())
-	today = today.split("-")
-	day = today[2]
-	month = today[1]
-	year = today[0]
+	return dateRange
 
+
+def renameReports(dateRangeRHR, dateRangeStress, dateRangeSleep):
+	RHROldFileName = 'WELLNESS_RESTING_HEART_RATE.csv'
+	SleepOldFileName = 'SLEEP_SLEEP_DURATION.csv'
+	StressOldFileName = 'WELLNESS_AVERAGE_STRESS.csv'
+
+	RHRDateString = formatDateString(dateRangeRHR)
+	SleepDateString = formatDateString(dateRangeSleep)
+	StressDateString = formatDateString(dateRangeStress)
+
+	RHRNewFileName = 'RHR_' + RHRDateString + '.csv'
+	SleepNewFileName = 'SLEEP_' + SleepDateString + '.csv'
+	StressNewFileName = 'STRESS_' + StressDateString + '.csv'
+
+
+	rename(RHROldFileName, RHRNewFileName)
+	rename(SleepOldFileName, SleepNewFileName)
+	rename(StressOldFileName, StressNewFileName)
+
+
+def formatDateString(dateRange):
+	month = [0,0]
+
+	dateRange = dateRange.replace(',','') #strip out commas
+	dateRange = dateRange.split(' ')
 	
+
+	for ii in [0, 3]:
+		if (dateRange[ii] == 'Jan'):
+			month[int(ii/2)] = 1
+		elif (dateRange[ii] == 'Feb'):
+			month[int(ii/2)] = 2
+		elif (dateRange[ii] == 'Mar'):
+			month[int(ii/2)] = 3
+		elif (dateRange[ii] == 'Apr'):
+			month[int(ii/2)] = 4
+		elif (dateRange[ii] == 'May'):
+			month[int(ii/2)] = 5
+		elif (dateRange[ii] == 'Jun'):
+			month[int(ii/2)] = 6
+		elif (dateRange[ii] == 'Jul'):
+			month[int(ii/2)] = 7		
+		elif (dateRange[ii] == 'Aug'):
+			month[int(ii/2)] = 8
+		elif (dateRange[ii] == 'Sep'):
+			month[int(ii/2)] = 9
+		elif (dateRange[ii] == 'Oct'):
+			month[int(ii/2)] = 10
+		elif (dateRange[ii] == 'Nov'):
+			month[int(ii/2)] = 11
+		elif (dateRange[ii] == 'Dec'):
+			month[int(ii/2)] = 12
+	
+	dateString = str(int(float(dateRange[5])*10000 + month[0]*100 + float(dateRange[1]))) + '_' + str(int(float(dateRange[5])*10000 + month[1]*100 + float(dateRange[4])))
+	return dateString
+
+
+
 def browserInit(downloadDir):
 	
 	# Set Firefox preferences -- specifically to download *.csv files w/o raising a confirmation dialog box
@@ -68,10 +127,12 @@ def cleanUp(downloadDir):
 
 
 
+
+
 def main():
 	downloadDir = getcwd()
 	credentials = queryCredentials()
-	#   Head to garmin connect login page
+		#   Head to garmin connect login page
 	browser = browserInit(downloadDir)
 
 	browser.get('https://connect.garmin.com/modern/')
@@ -103,20 +164,23 @@ def main():
 			EC.element_to_be_clickable((By.XPATH, '/html/body/div/div[3]/header/div[1]/div'))
 		)
 		browser.get('https://connect.garmin.com/modern/report/60/wellness/last_seven_days')
-		downloadReport(browser)
+		dateRangeRHR = downloadReport(browser)
 		print "RHR Download Success!"
 		browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
-		downloadReport(browser)
+		dateRangeStress = downloadReport(browser)
 		print "Stress Download Success!"
 		browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
-		downloadReport(browser)
+		dateRangeSleep = downloadReport(browser)
 		print "Sleep Download Success!"
+
+		renameReports(dateRangeRHR, dateRangeStress, dateRangeSleep)
 	except:
 		print "Error fetching reports..."
 		cleanUp(downloadDir)
+	
 
 	browser.quit()
-	reportMerge(downloadDir)
+
 
 	
 

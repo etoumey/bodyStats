@@ -6,7 +6,7 @@ def createConnection():
 	return connection
 
 def createTable(connection):
-	sqlCreateTable = """ CREATE TABLE IF NOT EXISTS userData (date text NOT NULL, RHR real, SLEEP real, STRESS real, ATL real, CTL real ); """
+	sqlCreateTable = """ CREATE TABLE IF NOT EXISTS userData (date text NOT NULL, RHR real, SLEEP real, STRESS real, ATL real, CTL real, PRIMARY KEY (date) ); """
 	cursor = connection.cursor()
 	cursor.execute(sqlCreateTable)
 
