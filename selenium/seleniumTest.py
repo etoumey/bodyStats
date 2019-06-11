@@ -47,24 +47,21 @@ def renameReports(dateRangeRHR, dateRangeStress, dateRangeSleep):
 	SleepOldFileName = 'SLEEP_SLEEP_DURATION.csv'
 	StressOldFileName = 'WELLNESS_AVERAGE_STRESS.csv'
 
-	try:
+	if dateRangeRHR:
 		RHRDateString = formatDateString(dateRangeRHR)
 		RHRNewFileName = 'RHR_' + RHRDateString + '.csv'
 		rename(RHROldFileName, RHRNewFileName)
-	except:
-		pass
-	try:
+
+	if dateRangeSleep:
 		SleepDateString = formatDateString(dateRangeSleep)
 		SleepNewFileName = 'SLEEP_' + SleepDateString + '.csv'
 		rename(SleepOldFileName, SleepNewFileName)
-	except:
-		pass
-	try:
+
+	if dateRangeStress:
 		StressDateString = formatDateString(dateRangeStress)
 		StressNewFileName = 'STRESS_' + StressDateString + '.csv'
 		rename(StressOldFileName, StressNewFileName)
-	except:
-		pass
+
 
 
 def formatDateString(dateRange):
@@ -116,7 +113,7 @@ def browserInit(downloadDir):
 
 	#Setup browser as headless
 	opts = Options()
-	#opts.headless = True
+	opts.headless = True
 
 	# Instantiate a Firefox browser object with the above-specified profile settings
 	print("Browser preferences configured")

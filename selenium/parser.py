@@ -33,7 +33,6 @@ def getFileList():
 	return RHRFiles, sleepFiles, stressFiles
 
 
-
 def parseRHR(rhrFiles):
 	dataRHR = [0,0,0,0,0,0,0]
 	DOW = ['', '', '', '', '', '', '']
@@ -47,18 +46,17 @@ def parseRHR(rhrFiles):
 					dataRHR[ii-2] = float(rows[1])
 					DOW[ii-2] = rows[0]
 				ii = ii + 1
-			dateArray = pullDates(files, DOW)	
-
-		print dataRHR
-	return dataRHR
+			
+		dateArray = pullDates(files, DOW)	
+	return dataRHR, dateArray
 
 
 def parseSleep(sleepFiles):
 	dataSleep = [0,0,0,0,0,0]
+	DOW = ['', '', '', '', '', '', '']
 	ii = 0
 
 	for files in sleepFiles: 
-		startDate, endDate = pullDates(files)	
 		with open(sleepFiles[0], 'r') as fh:
 			tempSleep = csv.reader(fh)
 			for rows in tempSleep:
@@ -66,25 +64,31 @@ def parseSleep(sleepFiles):
 					hours, minutes = rows[2].split(":")
 					minutes, garb = minutes.split(" ")
 					dataSleep[ii-2] = float(hours) + float(minutes) / 60.0
+					DOW[ii-2] = rows[0]
 				ii = ii + 1
-		print dataSleep
-	return dataSleep
+
+		dateArray = pullDates(files, DOW)	
+		print "Sleep parsed"
+	return dataSleep, dateArray
 
 
 def parseStress(stressFiles):
 	dataStress = [0,0,0,0,0,0]
+	DOW = ['', '', '', '', '', '', '']
 	ii = 0
 
 	for files in stressFiles:
-		startDate, endDate = pullDates(files)
 		with open(stressFiles[0], 'r') as fh:
 			tempStress = csv.reader(fh)
 			for rows in tempStress:
 				if (ii > 1 and ii <= 7):
 					dataStress[ii-2] = float(rows[1])
-					ii = ii + 1
-		print dataStress
-	return dataStress
+					DOW[ii-2] = rows[0]
+				ii = ii + 1
+
+		dateArray = pullDates(files, DOW)	
+		print "Stress parsed"
+	return dataStress, dateArray
 
 
 def pullDates(files, DOW):
@@ -119,30 +123,21 @@ def pullDates(files, DOW):
 			ii = ii + 1
 		else:
 			offset = offset + 1
-
-
-	print dateArray
-
-	
-	#endDate = datetime.strptime(tempSplit[2], dateString)
-	#for ii in DOW:
-
-
-
-
-	#	startDate = (startDate + 1) % 7
-
-
+	return dateArray
 
 
 
 connection = initializeUserData()
 rhrFiles, sleepFiles, stressFiles = getFileList()
-dataRHR = parseRHR(rhrFiles)
-dataSleep = parseSleep(sleepFiles)
-dataStress = parseStress(stressFiles)
+dataRHR, datesRHR = parseRHR(rhrFiles)
+dataSleep, datesSleep = parseSleep(sleepFiles)
+dataStress, datesStress = parseStress(stressFiles)
+#c = connection.cursor()
+print datesRHR[0]
 
-
+cursor = connection.cursor()
+cursor.execute('''INSERT INTO userData(date) VALUES(?)''', (datesRHR[0],))
+connection.commit()
 #with open('userData', 'w+') as fh:#
 #	json.dump(userData, fh)
 #	fh.close()
