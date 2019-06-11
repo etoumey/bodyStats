@@ -3,7 +3,7 @@ import csv
 import sqlite3
 from os import listdir
 import re
-
+from datetime import datetime
 
 
 def initializeUserData():
@@ -36,6 +36,7 @@ def getFileList():
 
 def parseRHR(rhrFiles):
 	dataRHR = [0,0,0,0,0,0]
+	DOW = ['', '', '', '', '', '', '']
 	ii = 0
 
 	for files in rhrFiles:
@@ -44,7 +45,10 @@ def parseRHR(rhrFiles):
 			for rows in tempRHR:
 				if (ii > 1 and ii <= 7):
 					dataRHR[ii-2] = float(rows[1])
+					DOW[ii-2] = rows[0]
 				ii = ii + 1
+			startDate, endDate = pullDates(files, DOW)	
+
 		print dataRHR
 	return dataRHR
 
@@ -52,9 +56,9 @@ def parseRHR(rhrFiles):
 def parseSleep(sleepFiles):
 	dataSleep = [0,0,0,0,0,0]
 	ii = 0
-	
 
 	for files in sleepFiles: 
+		startDate, endDate = pullDates(files)	
 		with open(sleepFiles[0], 'r') as fh:
 			tempSleep = csv.reader(fh)
 			for rows in tempSleep:
@@ -72,6 +76,7 @@ def parseStress(stressFiles):
 	ii = 0
 
 	for files in stressFiles:
+		startDate, endDate = pullDates(files)
 		with open(stressFiles[0], 'r') as fh:
 			tempStress = csv.reader(fh)
 			for rows in tempStress:
@@ -82,9 +87,19 @@ def parseStress(stressFiles):
 	return dataStress
 
 
-#def datesCheck(fileContents):
+def pullDates(files, DOW):
+	dateString = '%Y%m%d'
+	tempSplit = re.split('_|\.', files)
 
 
+	startDate = datetime.strptime(tempSplit[1], dateString)
+	#endDate = datetime.strptime(tempSplit[2], dateString)
+	for ii in DOW:
+
+
+
+
+		startDate = (startDate + 1) % 7
 
 
 
