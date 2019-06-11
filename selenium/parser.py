@@ -35,7 +35,7 @@ def getFileList():
 
 
 def parseRHR(rhrFiles):
-	dataRHR = [0,0,0,0,0,0]
+	dataRHR = [0,0,0,0,0,0,0]
 	DOW = ['', '', '', '', '', '', '']
 	ii = 0
 
@@ -43,11 +43,11 @@ def parseRHR(rhrFiles):
 		with open(files, 'r') as fh:
 			tempRHR = csv.reader(fh)
 			for rows in tempRHR:
-				if (ii > 1 and ii <= 7):
+				if (ii > 1 and ii <= 8):
 					dataRHR[ii-2] = float(rows[1])
 					DOW[ii-2] = rows[0]
 				ii = ii + 1
-			startDate, endDate = pullDates(files, DOW)	
+			dateArray = pullDates(files, DOW)	
 
 		print dataRHR
 	return dataRHR
@@ -90,16 +90,38 @@ def parseStress(stressFiles):
 def pullDates(files, DOW):
 	dateString = '%Y%m%d'
 	tempSplit = re.split('_|\.', files)
-
+	dateArray = []
+	ii = 0
 
 	startDate = datetime.strptime(tempSplit[1], dateString)
+
+	for days in DOW:
+		if (DOW[ii] == 'Mon'):
+			DOW[ii] = 0
+		elif (DOW[ii] == 'Tue'):
+			DOW[ii] = 1
+		elif (DOW[ii] == 'Wed'):
+			DOW[ii] = 2
+		elif (DOW[ii] == 'Thu'):
+			DOW[ii] = 3
+		elif (DOW[ii] == 'Fri'):
+			DOW[ii] = 4
+		elif (DOW[ii] == 'Sat'):
+			DOW[ii] = 5
+		elif (DOW[ii] == 'Sun'):
+			DOW[ii] = 6	
+		ii = ii + 1	
+
+	print DOW
+
+	
 	#endDate = datetime.strptime(tempSplit[2], dateString)
-	for ii in DOW:
+	#for ii in DOW:
 
 
 
 
-		startDate = (startDate + 1) % 7
+	#	startDate = (startDate + 1) % 7
 
 
 
