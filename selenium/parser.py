@@ -126,6 +126,17 @@ def pullDates(files, DOW):
 	return dateArray
 
 
+def buildDB(connection, datesRHR, dataRHR, dataSleep, dataStress):
+	cursor = connection.cursor()
+	
+	for ii in range(0,len(datesRHR) - 1):
+		cursor.execute('''INSERT INTO userData(date, RHR, SLEEP, STRESS) VALUES(?, ?, ?, ?)''', (datesRHR[ii], dataRHR[ii], dataSleep[ii], dataStress[ii]))
+	
+	connection.commit()
+	connection.close()
+
+
+
 
 connection = initializeUserData()
 rhrFiles, sleepFiles, stressFiles = getFileList()
@@ -133,9 +144,5 @@ dataRHR, datesRHR = parseRHR(rhrFiles)
 dataSleep, datesSleep = parseSleep(sleepFiles)
 dataStress, datesStress = parseStress(stressFiles)
 
-cursor = connection.cursor()
-cursor.execute('''INSERT INTO userData(date, RHR, SLEEP, STRESS) VALUES(?, ?, ?, ?)''', (datesRHR[1], dataRHR[1], dataSleep[1], dataStress[1]))
-connection.commit()
 
-
-connection.close()
+buildDB(connection, datesRHR, dataRHR, dataSleep, dataStress)
