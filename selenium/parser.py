@@ -132,12 +132,10 @@ rhrFiles, sleepFiles, stressFiles = getFileList()
 dataRHR, datesRHR = parseRHR(rhrFiles)
 dataSleep, datesSleep = parseSleep(sleepFiles)
 dataStress, datesStress = parseStress(stressFiles)
-#c = connection.cursor()
-print datesRHR[0]
 
 cursor = connection.cursor()
-cursor.execute('''INSERT INTO userData(date) VALUES(?)''', (datesRHR[0],))
+cursor.execute('''INSERT INTO userData(date, RHR, SLEEP, STRESS) VALUES(?, ?, ?, ?)''', (datesRHR[1], dataRHR[1], dataSleep[1], dataStress[1]))
 connection.commit()
-#with open('userData', 'w+') as fh:#
-#	json.dump(userData, fh)
-#	fh.close()
+
+
+connection.close()
