@@ -3,7 +3,7 @@ import csv
 import sqlite3
 from os import listdir
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 def initializeUserData():
@@ -92,27 +92,36 @@ def pullDates(files, DOW):
 	tempSplit = re.split('_|\.', files)
 	dateArray = []
 	ii = 0
+	offset = 0
 
 	startDate = datetime.strptime(tempSplit[1], dateString)
-
+	
+	#Convert from the date string in the data file to integer date numbers
 	for days in DOW:
 		if (DOW[ii] == 'Mon'):
-			DOW[ii] = 0
+			today = 0
 		elif (DOW[ii] == 'Tue'):
-			DOW[ii] = 1
+			today = 1
 		elif (DOW[ii] == 'Wed'):
-			DOW[ii] = 2
+			today = 2
 		elif (DOW[ii] == 'Thu'):
-			DOW[ii] = 3
+			today = 3
 		elif (DOW[ii] == 'Fri'):
-			DOW[ii] = 4
+			today = 4
 		elif (DOW[ii] == 'Sat'):
-			DOW[ii] = 5
+			today = 5
 		elif (DOW[ii] == 'Sun'):
-			DOW[ii] = 6	
-		ii = ii + 1	
+			today = 6
+		testDate = startDate + timedelta(days=offset)
+		if (today == testDate.weekday()):
+			dateArray.append(testDate)
+			offset = offset + 1
+			ii = ii + 1
+		else:
+			offset = offset + 1
 
-	print DOW
+
+	print dateArray
 
 	
 	#endDate = datetime.strptime(tempSplit[2], dateString)
