@@ -130,7 +130,7 @@ def buildDB(connection, datesRHR, dataRHR, dataSleep, dataStress):
 	cursor = connection.cursor()
 	
 	for ii in range(0,len(datesRHR) - 1):
-		cursor.execute('''INSERT INTO userData(date, RHR, SLEEP, STRESS) VALUES(?, ?, ?, ?)''', (datesRHR[ii], dataRHR[ii], dataSleep[ii], dataStress[ii]))
+		cursor.execute('''REPLACE INTO userData(date, RHR, SLEEP, STRESS) VALUES(?, ?, ?, ?)''', (datesRHR[ii], dataRHR[ii], dataSleep[ii], dataStress[ii]))
 	
 	connection.commit()
 	connection.close()
