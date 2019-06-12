@@ -34,20 +34,21 @@ def getFileList():
 
 
 def parseRHR(rhrFiles):
-	dataRHR = [0,0,0,0,0,0,0]
-	DOW = ['', '', '', '', '', '', '']
-	ii = 0
+	dataRHR = []
+	dateArray = []
+	DOW = []
 
 	for files in rhrFiles:
+		ii = 0
 		with open(files, 'r') as fh:
 			tempRHR = csv.reader(fh)
 			for rows in tempRHR:
 				if (ii > 1 and ii <= 8):
-					dataRHR[ii-2] = float(rows[1])
-					DOW[ii-2] = rows[0]
+					dataRHR.append(float(rows[1]))
+					DOW.append(rows[0])
 				ii = ii + 1
-			
-		dateArray = pullDates(files, DOW)	
+		dateArray.extend(pullDates(files, DOW))
+		del DOW[:]
 	return dataRHR, dateArray
 
 
@@ -99,7 +100,6 @@ def pullDates(files, DOW):
 	offset = 0
 
 	startDate = datetime.strptime(tempSplit[1], dateString)
-	
 	#Convert from the date string in the data file to integer date numbers
 	for days in DOW:
 		if (DOW[ii] == 'Mon'):
@@ -123,17 +123,18 @@ def pullDates(files, DOW):
 			ii = ii + 1
 		else:
 			offset = offset + 1
+	
 	return dateArray
 
 
-def buildDB(connection, datesRHR, dataRHR, dataSleep, dataStress):
+def buildDB(connection, dates, data, column):
 	cursor = connection.cursor()
-	
-	for ii in range(0,len(datesRHR) - 1):
-		cursor.execute('''REPLACE INTO userData(date, RHR, SLEEP, STRESS) VALUES(?, ?, ?, ?)''', (datesRHR[ii], dataRHR[ii], dataSleep[ii], dataStress[ii]))
-	
+	sql = '''REPLACE INTO userData(date, %s) VALUES(?, ?)''' % column
+	for ii in range(0,len(dates) - 1):
+		cursor.execute(sql, (dates[ii], data[ii]))
+
 	connection.commit()
-	connection.close()
+
 
 
 
@@ -143,6 +144,8 @@ rhrFiles, sleepFiles, stressFiles = getFileList()
 dataRHR, datesRHR = parseRHR(rhrFiles)
 dataSleep, datesSleep = parseSleep(sleepFiles)
 dataStress, datesStress = parseStress(stressFiles)
+buildDB(connection, datesRHR, dataRHR, 'RHR')
+buildDB(connection, datesSleep, dataSleep, 'SLEEP')
+buildDB(connection, datesStress, dataStress, 'STRESS')
 
-
-buildDB(connection, datesRHR, dataRHR, dataSleep, dataStress)
+connection.close()
