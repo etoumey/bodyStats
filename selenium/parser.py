@@ -7,7 +7,6 @@ from datetime import datetime, timedelta
 
 
 def initializeUserData():
-	print "Initializing database..."
 	connection = sqlite3.connect('userData.db')
 	sqlCreateTable = """ CREATE TABLE IF NOT EXISTS userData (date text NOT NULL, RHR real, SLEEP real, STRESS real, ATL real, CTL real, PRIMARY KEY (date) ); """
 	cursor = connection.cursor()
@@ -53,42 +52,42 @@ def parseRHR(rhrFiles):
 
 
 def parseSleep(sleepFiles):
-	dataSleep = [0,0,0,0,0,0]
-	DOW = ['', '', '', '', '', '', '']
-	ii = 0
+	dataSleep = []
+	dateArray = []
+	DOW = []
 
 	for files in sleepFiles: 
-		with open(sleepFiles[0], 'r') as fh:
+		ii = 0
+		with open(files, 'r') as fh:
 			tempSleep = csv.reader(fh)
 			for rows in tempSleep:
-				if (ii > 1 and ii <= 7):
+				if (ii > 1 and ii <= 8):
 					hours, minutes = rows[2].split(":")
 					minutes, garb = minutes.split(" ")
-					dataSleep[ii-2] = float(hours) + float(minutes) / 60.0
-					DOW[ii-2] = rows[0]
+					dataSleep.append(float(hours) + float(minutes) / 60.0)
+					DOW.append(rows[0])
 				ii = ii + 1
-
-		dateArray = pullDates(files, DOW)	
-		print "Sleep parsed"
+		dateArray.extend(pullDates(files, DOW))
+		del DOW[:]
 	return dataSleep, dateArray
 
 
 def parseStress(stressFiles):
-	dataStress = [0,0,0,0,0,0]
-	DOW = ['', '', '', '', '', '', '']
-	ii = 0
+	dataStress = []
+	dateArray = []
+	DOW = []
 
 	for files in stressFiles:
-		with open(stressFiles[0], 'r') as fh:
+		ii = 0
+		with open(files, 'r') as fh:
 			tempStress = csv.reader(fh)
 			for rows in tempStress:
-				if (ii > 1 and ii <= 7):
-					dataStress[ii-2] = float(rows[1])
-					DOW[ii-2] = rows[0]
+				if (ii > 1 and ii <= 8):
+					dataStress.append(float(rows[1]))
+					DOW.append(rows[0])
 				ii = ii + 1
-
-		dateArray = pullDates(files, DOW)	
-		print "Stress parsed"
+		dateArray.extend(pullDates(files, DOW))
+		del DOW[:]
 	return dataStress, dateArray
 
 
@@ -129,9 +128,16 @@ def pullDates(files, DOW):
 
 def buildDB(connection, dates, data, column):
 	cursor = connection.cursor()
-	sql = '''REPLACE INTO userData(date, %s) VALUES(?, ?)''' % column
-	for ii in range(0,len(dates) - 1):
-		cursor.execute(sql, (dates[ii], data[ii]))
+
+	for ii in range(0,len(dates)):
+		sql = '''SELECT date FROM userData WHERE date = ?''' 
+		cursor.execute(sql, (dates[ii],))
+		if cursor.fetchone():
+			sql = '''UPDATE userData SET %s = ? WHERE date = ?''' % column
+			cursor.execute(sql, (data[ii], dates[ii]))
+		else:
+			sql = '''INSERT INTO userData(date, %s) VALUES(?, ?)''' % column
+			cursor.execute(sql, (dates[ii], data[ii]))
 
 	connection.commit()
 
