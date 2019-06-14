@@ -169,9 +169,9 @@ def clickArrow(browser):
 def setDownloadFlag(desiredDate, dateRange):
 	dateString = formatDateString(dateRange)
 	dateString = dateString.split('_')
-	endDate = datetime.strptime(dateString[1], '%Y%m%d')
+	startDate = datetime.strptime(dateString[0], '%Y%m%d')
 
-	if desiredDate >= endDate:
+	if desiredDate >= startDate:
 		downloadFlag = 0
 	else:
 		downloadFlag = 1
@@ -221,7 +221,7 @@ def main():
 		
 	downloadFlag = 1
 	browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
-	desiredDate = datetime(2018,12,1)
+	desiredDate = datetime(2019,06,12)
 
 	while downloadFlag:
 		try:
