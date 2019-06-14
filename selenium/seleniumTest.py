@@ -1,4 +1,3 @@
-from __future__ import print_function
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
@@ -42,26 +41,23 @@ def downloadReport(browser):
 	return dateRange
 
 
-def renameReports(dateRangeRHR, dateRangeStress, dateRangeSleep):
-	RHROldFileName = 'WELLNESS_RESTING_HEART_RATE.csv'
-	SleepOldFileName = 'SLEEP_SLEEP_DURATION.csv'
-	StressOldFileName = 'WELLNESS_AVERAGE_STRESS.csv'
+def renameReport(dateRange, report):
+	if report == 'RHR':
+		OldFileName = 'WELLNESS_RESTING_HEART_RATE.csv'
+		NewFileString = 'RHR_'
+	elif report == 'SLEEP':
+		OldFileName = 'SLEEP_SLEEP_DURATION.csv'
+		NewFileString = 'SLEEP_'
+	elif report == 'STRESS':
+		OldFileName = 'WELLNESS_AVERAGE_STRESS.csv'
+		NewFileString = 'STRESS_'
 
-	if dateRangeRHR:
-		RHRDateString = formatDateString(dateRangeRHR)
-		RHRNewFileName = 'RHR_' + RHRDateString + '.csv'
-		rename(RHROldFileName, RHRNewFileName)
+	if dateRange:
+		DateString = formatDateString(dateRange)
+		NewFileName = NewFileString + DateString + '.csv'
+		rename(OldFileName, NewFileName)
 
-	if dateRangeSleep:
-		SleepDateString = formatDateString(dateRangeSleep)
-		SleepNewFileName = 'SLEEP_' + SleepDateString + '.csv'
-		rename(SleepOldFileName, SleepNewFileName)
-
-	if dateRangeStress:
-		StressDateString = formatDateString(dateRangeStress)
-		StressNewFileName = 'STRESS_' + StressDateString + '.csv'
-		rename(StressOldFileName, StressNewFileName)
-
+	return NewFileName
 
 
 def formatDateString(dateRange):
@@ -109,7 +105,6 @@ def formatDateString(dateRange):
 	return dateString
 
 
-
 def browserInit(downloadDir):
 	
 	# Set Firefox preferences -- specifically to download *.csv files w/o raising a confirmation dialog box
@@ -130,22 +125,15 @@ def browserInit(downloadDir):
 	
 	return browser
 
+
 def cleanUp(downloadDir):
 	for file in listdir(downloadDir):
 		if file.endswith(".csv"):
 			remove(file)
 
 
-
-
-
-
-def main():
-	downloadDir = getcwd()
+def login(browser):
 	credentials = queryCredentials()
-		#   Head to garmin connect login page
-	browser = browserInit(downloadDir)
-
 	browser.get('https://connect.garmin.com/modern/')
 
 	#input field is within an iframe
@@ -165,37 +153,50 @@ def main():
 		passwordField.send_keys(credentials[1])
 		passwordField.submit()
 		print("Login Success")
-	except:
-		print("Login Failure")
-
-
-	try:
 		browser.switch_to_default_content()
 		element = WebDriverWait(browser, 20).until(
 			EC.element_to_be_clickable((By.XPATH, '/html/body/div/div[3]/header/div[1]/div'))
 		)
+	except:
+		print("Login Failure")
+
+
+
+
+
+def main():
+	downloadDir = getcwd()
+	
+		#   Head to garmin connect login page
+	browser = browserInit(downloadDir)
+
+	login(browser)
+
+	
+
+	try:
 		browser.get('https://connect.garmin.com/modern/report/60/wellness/last_seven_days') #RHR report
 		dateRangeRHR = downloadReport(browser)
-		print("RHR Download Success!")
+		RHRReport = renameReport(dateRangeRHR, 'RHR')
+		print("RHR Download Success! %s") % RHRReport
+
 	except:
 		print("Error fetching RHR Data...")
-		dateRangeRHR = None
 	try:
 		browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
 		dateRangeStress = downloadReport(browser)
-		print("Stress Download Success!")
+		stressReport = renameReport(dateRangeStress, 'STRESS')
+		print("Stress Download Success! %s") % stressReport
 	except:
 		print("Error Fetching Stress Data...")
-		dateRangeStress = None
 	try:
 		browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
 		dateRangeSleep = downloadReport(browser)
-		print("Sleep Download Success!")
+		sleepReport = renameReport(dateRangeSleep, 'SLEEP')
+		print("Sleep Download Success! %s") % stressReport
 	except:
 		print("Error Fetching Sleep Data...")
-		dateRangeSleep = None
 
-	renameReports(dateRangeRHR, dateRangeStress, dateRangeSleep)
 
 	browser.quit()
 
