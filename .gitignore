@@ -1,7 +1,7 @@
 *.log
 *.aux
 *.pass
-
+*.csv
 *.pyc
 
 # For macOS support
