@@ -3,3 +3,6 @@
 *.pass
 *.csv
 *.pyc
+
+# For macOS support
+.DS_STORE
