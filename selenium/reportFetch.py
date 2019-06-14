@@ -34,10 +34,6 @@ def downloadReport(browser):
 	dateElement = browser.find_element_by_xpath(dateXpath)
 	dateRange = str(dateElement.text)
 
-	# Only need arrow if you want to do multiple weeks at a time. 
-	#arrowXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[1]/button[1]'
-	#browser.find_element_by_xpath(arrowXpath).click()
-
 	return dateRange
 
 
@@ -161,6 +157,10 @@ def login(browser):
 		print("Login Failure")
 
 
+def clickArrow(browser):
+	# Only need arrow if you want to do multiple weeks at a time. 
+	arrowXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[1]/button[1]'
+	browser.find_element_by_xpath(arrowXpath).click()
 
 
 
