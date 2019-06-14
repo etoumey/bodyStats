@@ -38,25 +38,25 @@ def downloadReport(browser):
 	return dateRange
 
 
-def renameReports(dateRangeRHR):#, dateRangeStress, dateRangeSleep):
+def renameReports(dateRangeStress):#, dateRangeStress, dateRangeSleep):
 	RHROldFileName = 'WELLNESS_RESTING_HEART_RATE.csv'
 	SleepOldFileName = 'SLEEP_SLEEP_DURATION.csv'
 	StressOldFileName = 'WELLNESS_AVERAGE_STRESS.csv'
 
-	if dateRangeRHR:
-		RHRDateString = formatDateString(dateRangeRHR)
-		RHRNewFileName = 'RHR_' + RHRDateString + '.csv'
-		rename(RHROldFileName, RHRNewFileName)
+	#if dateRangeRHR:
+	#	RHRDateString = formatDateString(dateRangeRHR)
+	#	RHRNewFileName = 'RHR_' + RHRDateString + '.csv'
+	#	rename(RHROldFileName, RHRNewFileName)
 
 	#if dateRangeSleep:
 	#	SleepDateString = formatDateString(dateRangeSleep)
 	#	SleepNewFileName = 'SLEEP_' + SleepDateString + '.csv'
 	#	rename(SleepOldFileName, SleepNewFileName)
 
-	#if dateRangeStress:
-	#	StressDateString = formatDateString(dateRangeStress)
-	#	StressNewFileName = 'STRESS_' + StressDateString + '.csv'
-	#	rename(StressOldFileName, StressNewFileName)
+	if dateRangeStress:
+		StressDateString = formatDateString(dateRangeStress)
+		StressNewFileName = 'STRESS_' + StressDateString + '.csv'
+		rename(StressOldFileName, StressNewFileName)
 
 
 
@@ -161,21 +161,24 @@ def main():
 				EC.element_to_be_clickable((By.XPATH, '/html/body/div/div[3]/header/div[1]/div'))
 			)
 	browser.get('https://connect.garmin.com/modern/report/60/wellness/last_seven_days') #RHR report
-
+	browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
 
 	while True:
 		try:
-			dateRangeRHR = downloadReport(browser)
-			renameReports(dateRangeRHR)
-			# Only need arrow if you want to do multiple weeks at a time. 
+			dateRangeStress = downloadReport(browser)
+			if dateRangeStress:
+				renameReports(dateRangeStress)
+			else:
+				pass
+		#	# Only need arrow if you want to do multiple weeks at a time. 
 			browser.switch_to_default_content()
 			arrowXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[1]/button[1]'
 			browser.find_element_by_xpath(arrowXpath).click()
 
-			print("RHR Download Success!")
+			print("Stress Download Success!")
 		except:
 			print("Error fetching RHR Data...")
-			dateRangeRHR = None
+			dateRangeStress = None
 		#try:
 		#	browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
 		#	dateRangeStress = downloadReport(browser)

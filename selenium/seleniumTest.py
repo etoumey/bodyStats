@@ -70,8 +70,12 @@ def formatDateString(dateRange):
 	dateRange = dateRange.replace(',','') #strip out commas
 	dateRange = dateRange.split(' ')
 	
+	if dateRange[3] == '-':
+		monthIndex = 4
+	else:
+		monthIndex = 3
 
-	for ii in [0, 3]:
+	for ii in [0, monthIndex]:
 		if (dateRange[ii] == 'Jan'):
 			month[int(ii/2)] = 1
 		elif (dateRange[ii] == 'Feb'):
@@ -97,7 +101,11 @@ def formatDateString(dateRange):
 		elif (dateRange[ii] == 'Dec'):
 			month[int(ii/2)] = 12
 	
-	dateString = str(int(float(dateRange[5])*10000 + month[0]*100 + float(dateRange[1]))) + '_' + str(int(float(dateRange[5])*10000 + month[1]*100 + float(dateRange[4])))
+	if monthIndex == 3:
+		dateString = str(int(float(dateRange[5])*10000 + month[0]*100 + float(dateRange[1]))) + '_' + str(int(float(dateRange[5])*10000 + month[1]*100 + float(dateRange[4])))
+	else:
+		dateString = str(int(float(dateRange[2])*10000 + month[0]*100 + float(dateRange[1]))) + '_' + str(int(float(dateRange[6])*10000 + month[1]*100 + float(dateRange[5])))
+
 	return dateString
 
 

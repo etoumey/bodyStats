@@ -116,6 +116,7 @@ def pullDates(files, DOW):
 		elif (DOW[ii] == 'Sun'):
 			today = 6
 		testDate = startDate + timedelta(days=offset)
+		print offset
 		if (today == testDate.weekday()):
 			dateArray.append(testDate)
 			offset = offset + 1
