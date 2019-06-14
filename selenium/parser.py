@@ -99,6 +99,7 @@ def pullDates(files, DOW):
 	offset = 0
 
 	startDate = datetime.strptime(tempSplit[1], dateString)
+	testDate = startDate
 	#Convert from the date string in the data file to integer date numbers
 	for days in DOW:
 		if (DOW[ii] == 'Mon'):
@@ -115,15 +116,15 @@ def pullDates(files, DOW):
 			today = 5
 		elif (DOW[ii] == 'Sun'):
 			today = 6
-		testDate = startDate + timedelta(days=offset)
-		print offset
-		if (today == testDate.weekday()):
-			dateArray.append(testDate)
-			offset = offset + 1
-			ii = ii + 1
-		else:
-			offset = offset + 1
-	
+		
+
+		while (today != testDate.weekday()):
+			offset = offset + 1 
+			testDate = startDate + timedelta(days=offset)
+
+		dateArray.append(testDate)
+		ii = ii + 1
+			
 	return dateArray
 
 
@@ -149,6 +150,7 @@ def buildDB(connection, dates, data, column):
 connection = initializeUserData()
 rhrFiles, sleepFiles, stressFiles = getFileList()
 dataRHR, datesRHR = parseRHR(rhrFiles)
+print len(dataRHR) , len(datesRHR)
 dataSleep, datesSleep = parseSleep(sleepFiles)
 dataStress, datesStress = parseStress(stressFiles)
 buildDB(connection, datesRHR, dataRHR, 'RHR')

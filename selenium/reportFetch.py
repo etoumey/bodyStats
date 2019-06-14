@@ -5,7 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from os import getcwd,remove, listdir, rename
-from datetime import date
+from datetime import date, datetime
 import time
 
 
@@ -49,8 +49,8 @@ def renameReport(dateRange, report):
 		NewFileString = 'STRESS_'
 
 	if dateRange:
-		DateString = formatDateString(dateRange)
-		NewFileName = NewFileString + DateString + '.csv'
+		dateString = formatDateString(dateRange)
+		NewFileName = NewFileString + dateString + '.csv'
 		rename(OldFileName, NewFileName)
 
 	return NewFileName
@@ -69,29 +69,29 @@ def formatDateString(dateRange):
 
 	for ii in [0, monthIndex]:
 		if (dateRange[ii] == 'Jan'):
-			month[int(ii/2)] = 1
+			month[int(ii/3)] = 1
 		elif (dateRange[ii] == 'Feb'):
-			month[int(ii/2)] = 2
+			month[int(ii/3)] = 2
 		elif (dateRange[ii] == 'Mar'):
-			month[int(ii/2)] = 3
+			month[int(ii/3)] = 3
 		elif (dateRange[ii] == 'Apr'):
-			month[int(ii/2)] = 4
+			month[int(ii/3)] = 4
 		elif (dateRange[ii] == 'May'):
-			month[int(ii/2)] = 5
+			month[int(ii/3)] = 5
 		elif (dateRange[ii] == 'Jun'):
-			month[int(ii/2)] = 6
+			month[int(ii/3)] = 6
 		elif (dateRange[ii] == 'Jul'):
-			month[int(ii/2)] = 7		
+			month[int(ii/3)] = 7		
 		elif (dateRange[ii] == 'Aug'):
-			month[int(ii/2)] = 8
+			month[int(ii/3)] = 8
 		elif (dateRange[ii] == 'Sep'):
-			month[int(ii/2)] = 9
+			month[int(ii/3)] = 9
 		elif (dateRange[ii] == 'Oct'):
-			month[int(ii/2)] = 10
+			month[int(ii/3)] = 10
 		elif (dateRange[ii] == 'Nov'):
-			month[int(ii/2)] = 11
+			month[int(ii/3)] = 11
 		elif (dateRange[ii] == 'Dec'):
-			month[int(ii/2)] = 12
+			month[int(ii/3)] = 12
 	
 	if monthIndex == 3:
 		dateString = str(int(float(dateRange[5])*10000 + month[0]*100 + float(dateRange[1]))) + '_' + str(int(float(dateRange[5])*10000 + month[1]*100 + float(dateRange[4])))
@@ -112,7 +112,7 @@ def browserInit(downloadDir):
 
 	#Setup browser as headless
 	opts = Options()
-	opts.headless = True
+	#opts.headless = True
 
 	# Instantiate a Firefox browser object with the above-specified profile settings
 	print("Browser preferences configured")
@@ -149,6 +149,7 @@ def login(browser):
 		passwordField.send_keys(credentials[1])
 		passwordField.submit()
 		print("Login Success")
+		# I really don't know why the below is necessary
 		browser.switch_to_default_content()
 		element = WebDriverWait(browser, 20).until(
 			EC.element_to_be_clickable((By.XPATH, '/html/body/div/div[3]/header/div[1]/div'))
@@ -158,44 +159,81 @@ def login(browser):
 
 
 def clickArrow(browser):
+	browser.switch_to_default_content()
+
 	# Only need arrow if you want to do multiple weeks at a time. 
 	arrowXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[1]/button[1]'
 	browser.find_element_by_xpath(arrowXpath).click()
 
 
+def setDownloadFlag(desiredDate, dateRange):
+	dateString = formatDateString(dateRange)
+	dateString = dateString.split('_')
+	endDate = datetime.strptime(dateString[1], '%Y%m%d')
+
+	if desiredDate >= endDate:
+		downloadFlag = 0
+	else:
+		downloadFlag = 1
+
+	return downloadFlag
+
 
 def main():
+	desiredDate = datetime(2019,06,12)
+	downloadFlag = 1
+
 	downloadDir = getcwd()
-	
-		#   Head to garmin connect login page
+	# Head to garmin connect login page
 	browser = browserInit(downloadDir)
 
 	login(browser)
 
-	
+	browser.get('https://connect.garmin.com/modern/report/60/wellness/last_seven_days') #RHR report
 
-	try:
-		browser.get('https://connect.garmin.com/modern/report/60/wellness/last_seven_days') #RHR report
-		dateRangeRHR = downloadReport(browser)
-		RHRReport = renameReport(dateRangeRHR, 'RHR')
-		print("RHR Download Success! %s") % RHRReport
+	while downloadFlag:
+		try:
+			dateRangeRHR = downloadReport(browser)
+			RHRReport = renameReport(dateRangeRHR, 'RHR')
+			print("RHR Download Success! %s") % RHRReport
+			downloadFlag = setDownloadFlag(desiredDate, dateRangeRHR)
+			if downloadFlag:
+				clickArrow(browser)
+		except:
+			print("Error fetching RHR Data...")
+			clickArrow(browser)
 
-	except:
-		print("Error fetching RHR Data...")
-	try:
-		browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
-		dateRangeStress = downloadReport(browser)
-		stressReport = renameReport(dateRangeStress, 'STRESS')
-		print("Stress Download Success! %s") % stressReport
-	except:
-		print("Error Fetching Stress Data...")
-	try:
-		browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
-		dateRangeSleep = downloadReport(browser)
-		sleepReport = renameReport(dateRangeSleep, 'SLEEP')
-		print("Sleep Download Success! %s") % stressReport
-	except:
-		print("Error Fetching Sleep Data...")
+	downloadFlag = 1
+	browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
+	desiredDate = datetime(2019,06,12)
+
+	while downloadFlag:
+		try:
+			dateRangeStress = downloadReport(browser)
+			stressReport = renameReport(dateRangeStress, 'STRESS')
+			print("Stress Download Success! %s") % stressReport
+			downloadFlag = setDownloadFlag(desiredDate, dateRangeRHR)
+			if downloadFlag:
+				clickArrow(browser)
+		except:
+			print("Error Fetching Stress Data...")
+			clickArrow(browser)
+		
+	downloadFlag = 1
+	browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
+	desiredDate = datetime(2015,12,25)
+
+	while downloadFlag:
+		try:
+			dateRangeSleep = downloadReport(browser)
+			sleepReport = renameReport(dateRangeSleep, 'SLEEP')
+			print("Sleep Download Success! %s") % sleepReport
+			downloadFlag = setDownloadFlag(desiredDate, dateRangeRHR)
+			if downloadFlag:
+				clickArrow(browser)
+		except:
+			print("Error Fetching Sleep Data...")
+			clickArrow(browser)
 
 
 	browser.quit()
