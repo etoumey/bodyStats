@@ -112,7 +112,7 @@ def browserInit(downloadDir):
 
 	#Setup browser as headless
 	opts = Options()
-	#opts.headless = True
+	opts.headless = True
 
 	# Instantiate a Firefox browser object with the above-specified profile settings
 	print("Browser preferences configured")
@@ -221,7 +221,7 @@ def main():
 		
 	downloadFlag = 1
 	browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
-	desiredDate = datetime(2015,12,25)
+	desiredDate = datetime(2018,12,1)
 
 	while downloadFlag:
 		try:

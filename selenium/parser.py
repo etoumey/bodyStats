@@ -140,7 +140,8 @@ def buildDB(connection, dates, data, column):
 		else:
 			sql = '''INSERT INTO userData(date, %s) VALUES(?, ?)''' % column
 			cursor.execute(sql, (dates[ii], data[ii]))
-
+	#sql = '''SELECT * FROM userData ORDER BY date ASC;'''
+	#cursor.execute(sql)
 	connection.commit()
 
 
