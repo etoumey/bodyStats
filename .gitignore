@@ -3,6 +3,7 @@
 *.pass
 *.csv
 *.pyc
+*.gpx
 
 # For macOS support
 .DS_STORE

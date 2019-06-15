@@ -146,8 +146,6 @@ def browserInit(downloadDir):
 	ffProfile.set_preference('browser.download.folderList', 2) # custom location
 	ffProfile.set_preference('browser.download.manager.showWhenStarting', False)
 	ffProfile.set_preference('browser.download.dir', downloadDir)
-	#ffProfile.set_preference('browser.helperApps.alwaysAsk.force', False)
-
 	ffProfile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'text/csv, application/gpx+xml')
 
 	#Setup browser as headless
