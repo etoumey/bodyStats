@@ -44,10 +44,10 @@ def downloadActivity(browser):
 	preloaderXpath = '//*[@id="pageContainer"]/div/div[2]/div[1]'
 	browser.get('https://connect.garmin.com/modern/activities') #Activity page
 
-	#Wait for the annoying element to become visible
+	#Wait for the annoying element to become present
 	browser.switch_to_default_content()
 	WebDriverWait(browser, waitTime).until(
-		EC.visibility_of_element_located((By.XPATH, preloaderXpath))
+		EC.presence_of_element_located((By.XPATH, preloaderXpath))
 		)
 	#DESTROY THE ANNOYING ELEMENT
 	annoyingElement = browser.find_element_by_xpath(preloaderXpath)
