@@ -40,16 +40,25 @@ def downloadReport(browser):
 def downloadActivity(browser):
 	waitTime = 20
 	dateXpath = '//*[@id="pageContainer"]/div/div[2]/ul/li[1]/div[2]'
+	firstRowXpath = '//*[@id="pageContainer"]/div/div[2]/ul/li[1]/div[4]'
 	activityXpath = '//*[@id="activity-name-edit"]/a'
+	preloaderXpath = '//*[@id="pageContainer"]/div/div[2]/div[1]'
+
 	browser.switch_to_default_content()
+#	raw_input()
+	WebDriverWait(browser, waitTime).until(
+		EC.invisibility_of_element_located((By.XPATH, preloaderXpath))
+		)
 
 	element = WebDriverWait(browser, waitTime).until(
-		EC.presence_of_element_located((By.XPATH, dateXpath)))
-	date = str(browser.find_element_by_xpath(dateXpath).text)
-	activityLink = browser.find_element_by_xpath(activityXpath)
-	print activityLink
-	raw_input()
+		EC.element_to_be_clickable((By.XPATH, activityXpath)))
+	browser.switch_to_default_content()
 
+	#date = str(browser.find_element_by_xpath(dateXpath).text)
+	#browser.find_element_by_xpath(firstRowXpath).click()
+	browser.find_element_by_xpath(activityXpath).click()
+	raw_input()
+	
 
 def renameReport(dateRange, report):
 	if report == 'RHR':
