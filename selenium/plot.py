@@ -27,10 +27,12 @@ def plotRHR(data):
 	#dates = [datetime.strptime(d, dateFormat).strftime(plotFormat) for d in dates]
 	RHR = [l[1] for l in data]
 	Stress = [l[3] for l in data]
-	
+	Sleep = [l[2] for l in data]
+
+
 	endIndex = len(dates) 
-	if endIndex > 60:
-		startIndex = endIndex - 60
+	if endIndex > 120:
+		startIndex = endIndex - 120
 	else:
 		startIndex = 0
 
@@ -67,6 +69,16 @@ def plotRHR(data):
 	plt.legend(loc=2)
 	plt.title(r'\textbf{RHR Histogram and PDF}')
 	plt.ylim((0,max(pdf)*1.5))
+
+
+	fig = plt.figure()
+	axis = fig.add_subplot(1,1,1)
+	#axis.xaxis.set_major_formatter(DateFormatter(plotFormat))
+	plt.scatter(Stress[startIndex:endIndex], Sleep[startIndex:endIndex])
+	plt.grid()
+	plt.xlabel(r'\textbf{Time}')
+	plt.ylabel(r'\textbf{RHR}')
+	plt.title(r'\textbf{Resting Heart Rate}')
 
 	plt.show(block=False)
 	raw_input()
