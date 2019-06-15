@@ -37,6 +37,20 @@ def downloadReport(browser):
 	return dateRange
 
 
+def downloadActivity(browser):
+	waitTime = 20
+	dateXpath = '//*[@id="pageContainer"]/div/div[2]/ul/li[1]/div[2]'
+	activityXpath = '//*[@id="activity-name-edit"]/a'
+	browser.switch_to_default_content()
+
+	element = WebDriverWait(browser, waitTime).until(
+		EC.presence_of_element_located((By.XPATH, dateXpath)))
+	date = str(browser.find_element_by_xpath(dateXpath).text)
+	activityLink = browser.find_element_by_xpath(activityXpath)
+	print activityLink
+	raw_input()
+
+
 def renameReport(dateRange, report):
 	if report == 'RHR':
 		OldFileName = 'WELLNESS_RESTING_HEART_RATE.csv'
@@ -112,7 +126,7 @@ def browserInit(downloadDir):
 
 	#Setup browser as headless
 	opts = Options()
-	opts.headless = True
+	#opts.headless = True
 
 	# Instantiate a Firefox browser object with the above-specified profile settings
 	print("Browser preferences configured")
@@ -181,7 +195,7 @@ def setDownloadFlag(desiredDate, dateRange):
 
 def main():
 	desiredDate = datetime(2019,06,12)
-	downloadFlag = 1
+	downloadFlag = 0
 
 	downloadDir = getcwd()
 	# Head to garmin connect login page
@@ -189,7 +203,8 @@ def main():
 
 	login(browser)
 
-	browser.get('https://connect.garmin.com/modern/report/60/wellness/last_seven_days') #RHR report
+	if downloadFlag:
+		browser.get('https://connect.garmin.com/modern/report/60/wellness/last_seven_days') #RHR report
 
 	while downloadFlag:
 		try:
@@ -203,9 +218,10 @@ def main():
 			print("Error fetching RHR Data...")
 			clickArrow(browser)
 
-	downloadFlag = 1
-	browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
-	desiredDate = datetime(2019,06,12)
+	downloadFlag = 0
+	if downloadFlag:
+		browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
+		desiredDate = datetime(2019,06,12)
 
 	while downloadFlag:
 		try:
@@ -219,9 +235,10 @@ def main():
 			print("Error Fetching Stress Data...")
 			clickArrow(browser)
 		
-	downloadFlag = 1
-	browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
-	desiredDate = datetime(2019,06,12)
+	downloadFlag = 0
+	if downloadFlag:
+		browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
+		desiredDate = datetime(2019,06,12)
 
 	while downloadFlag:
 		try:
@@ -235,6 +252,11 @@ def main():
 			print("Error Fetching Sleep Data...")
 			clickArrow(browser)
 
+	downloadFlag = 1
+	browser.get('https://connect.garmin.com/modern/activities') #Activity page
+	downloadActivity(browser)
+
+	
 
 	browser.quit()
 
