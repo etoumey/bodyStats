@@ -219,7 +219,7 @@ def setDownloadFlag(desiredDate, dateRange):
 
 def main():
 	desiredDate = datetime(2019,06,12)
-	downloadFlag = 0
+	downloadFlag = 1
 
 	downloadDir = getcwd()
 	# Head to garmin connect login page
@@ -242,7 +242,7 @@ def main():
 			print("Error fetching RHR Data...")
 			clickArrow(browser)
 
-	downloadFlag = 0
+	downloadFlag = 1
 	if downloadFlag:
 		browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
 		desiredDate = datetime(2019,06,12)
@@ -259,7 +259,7 @@ def main():
 			print("Error Fetching Stress Data...")
 			clickArrow(browser)
 		
-	downloadFlag = 0
+	downloadFlag = 1
 	if downloadFlag:
 		browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
 		desiredDate = datetime(2019,06,12)
@@ -276,8 +276,8 @@ def main():
 			print("Error Fetching Sleep Data...")
 			clickArrow(browser)
 
-	downloadFlag = 1
-	downloadActivity(browser)
+	#downloadFlag = 1
+	#downloadActivity(browser)
 
 	
 
