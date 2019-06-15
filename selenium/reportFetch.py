@@ -42,9 +42,13 @@ def downloadActivity(browser):
 	dateXpath = '//*[@id="pageContainer"]/div/div[2]/ul/li[1]/div[2]'
 	activityXpath = '//*[@id="activity-name-edit"]/a'
 	preloaderXpath = '//*[@id="pageContainer"]/div/div[2]/div[1]'
+	gearXpath = '//*[@id="activityToolbarViewPlaceholder"]/div[2]/div[3]/button/i'
+	downloadXpath = '//*[@id="btn-export-gpx"]/a'
+	
 	browser.get('https://connect.garmin.com/modern/activities') #Activity page
 
-	#Wait for the annoying element to become present
+	#Wait for the annoying element to become presenttop
+
 	browser.switch_to_default_content()
 	WebDriverWait(browser, waitTime).until(
 		EC.presence_of_element_located((By.XPATH, preloaderXpath))
@@ -58,7 +62,18 @@ def downloadActivity(browser):
 		EC.visibility_of_element_located((By.XPATH, activityXpath)))
 
 	browser.find_element_by_xpath(activityXpath).click()
+
+	WebDriverWait(browser, waitTime).until(
+		EC.element_to_be_clickable((By.XPATH, gearXpath))
+		)
+	browser.find_element_by_xpath(gearXpath).click()
 	
+	WebDriverWait(browser, waitTime).until(
+		EC.element_to_be_clickable((By.XPATH, downloadXpath))
+		)	
+
+	browser.find_element_by_xpath(downloadXpath).click()
+
 
 def renameReport(dateRange, report):
 	if report == 'RHR':
@@ -131,11 +146,13 @@ def browserInit(downloadDir):
 	ffProfile.set_preference('browser.download.folderList', 2) # custom location
 	ffProfile.set_preference('browser.download.manager.showWhenStarting', False)
 	ffProfile.set_preference('browser.download.dir', downloadDir)
-	ffProfile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'text/csv')
+	#ffProfile.set_preference('browser.helperApps.alwaysAsk.force', False)
+
+	ffProfile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'text/csv, application/gpx+xml')
 
 	#Setup browser as headless
 	opts = Options()
-	opts.headless = True
+	#opts.headless = True
 
 	# Instantiate a Firefox browser object with the above-specified profile settings
 	print("Browser preferences configured")
