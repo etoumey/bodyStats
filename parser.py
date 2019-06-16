@@ -1,9 +1,9 @@
-import json
 import csv
 import sqlite3
 from os import listdir
 import re
 from datetime import datetime, timedelta
+from matplotlib.patches import Rectangle
 
 
 def initializeUserData():

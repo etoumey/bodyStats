@@ -37,6 +37,44 @@ def downloadReport(browser):
 	return dateRange
 
 
+def downloadActivity(browser):
+	waitTime = 20
+	dateXpath = '//*[@id="pageContainer"]/div/div[2]/ul/li[1]/div[2]'
+	activityXpath = '//*[@id="activity-name-edit"]/a'
+	preloaderXpath = '//*[@id="pageContainer"]/div/div[2]/div[1]'
+	gearXpath = '//*[@id="activityToolbarViewPlaceholder"]/div[2]/div[3]/button/i'
+	downloadXpath = '//*[@id="btn-export-gpx"]/a'
+	
+	browser.get('https://connect.garmin.com/modern/activities') #Activity page
+
+	#Wait for the annoying element to become presenttop
+
+	browser.switch_to_default_content()
+	WebDriverWait(browser, waitTime).until(
+		EC.presence_of_element_located((By.XPATH, preloaderXpath))
+		)
+	#DESTROY THE ANNOYING ELEMENT
+	annoyingElement = browser.find_element_by_xpath(preloaderXpath)
+	browser.execute_script("arguments[0].style.visibility='hidden'", annoyingElement)
+	
+	#continue with life like a good boy
+	element = WebDriverWait(browser, waitTime).until(
+		EC.visibility_of_element_located((By.XPATH, activityXpath)))
+
+	browser.find_element_by_xpath(activityXpath).click()
+
+	WebDriverWait(browser, waitTime).until(
+		EC.element_to_be_clickable((By.XPATH, gearXpath))
+		)
+	browser.find_element_by_xpath(gearXpath).click()
+	
+	WebDriverWait(browser, waitTime).until(
+		EC.element_to_be_clickable((By.XPATH, downloadXpath))
+		)	
+
+	browser.find_element_by_xpath(downloadXpath).click()
+
+
 def renameReport(dateRange, report):
 	if report == 'RHR':
 		OldFileName = 'WELLNESS_RESTING_HEART_RATE.csv'
@@ -108,7 +146,7 @@ def browserInit(downloadDir):
 	ffProfile.set_preference('browser.download.folderList', 2) # custom location
 	ffProfile.set_preference('browser.download.manager.showWhenStarting', False)
 	ffProfile.set_preference('browser.download.dir', downloadDir)
-	ffProfile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'text/csv')
+	ffProfile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'text/csv, application/gpx+xml')
 
 	#Setup browser as headless
 	opts = Options()
@@ -149,7 +187,7 @@ def login(browser):
 		passwordField.send_keys(credentials[1])
 		passwordField.submit()
 		print("Login Success")
-		# I really don't know why the below is necessary
+		# Wait for login confirmation
 		browser.switch_to_default_content()
 		element = WebDriverWait(browser, 20).until(
 			EC.element_to_be_clickable((By.XPATH, '/html/body/div/div[3]/header/div[1]/div'))
@@ -169,9 +207,9 @@ def clickArrow(browser):
 def setDownloadFlag(desiredDate, dateRange):
 	dateString = formatDateString(dateRange)
 	dateString = dateString.split('_')
-	endDate = datetime.strptime(dateString[1], '%Y%m%d')
+	startDate = datetime.strptime(dateString[0], '%Y%m%d')
 
-	if desiredDate >= endDate:
+	if desiredDate >= startDate:
 		downloadFlag = 0
 	else:
 		downloadFlag = 1
@@ -189,7 +227,8 @@ def main():
 
 	login(browser)
 
-	browser.get('https://connect.garmin.com/modern/report/60/wellness/last_seven_days') #RHR report
+	if downloadFlag:
+		browser.get('https://connect.garmin.com/modern/report/60/wellness/last_seven_days') #RHR report
 
 	while downloadFlag:
 		try:
@@ -204,8 +243,9 @@ def main():
 			clickArrow(browser)
 
 	downloadFlag = 1
-	browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
-	desiredDate = datetime(2019,06,12)
+	if downloadFlag:
+		browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
+		desiredDate = datetime(2019,06,12)
 
 	while downloadFlag:
 		try:
@@ -220,8 +260,9 @@ def main():
 			clickArrow(browser)
 		
 	downloadFlag = 1
-	browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
-	desiredDate = datetime(2018,12,1)
+	if downloadFlag:
+		browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
+		desiredDate = datetime(2019,06,12)
 
 	while downloadFlag:
 		try:
@@ -235,6 +276,10 @@ def main():
 			print("Error Fetching Sleep Data...")
 			clickArrow(browser)
 
+	#downloadFlag = 1
+	downloadActivity(browser)
+
+	
 
 	browser.quit()
 
