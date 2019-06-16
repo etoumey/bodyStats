@@ -10,6 +10,7 @@ from os import listdir, mkdir, path
 from subprocess import call
 import shutil
 import sys
+import re
 
 def parseFile(fileName):
 	fh = open(fileName, 'r') #Open file with input name
@@ -249,7 +250,12 @@ def printPMCMode():
 
 
 def getFileList():
-	gpxFiles = listdir("gpxFiles")
+	gpxFiles = []
+
+	allFiles = listdir('.')
+	for files in allFiles:
+		if re.search("[a-zA-Z0-9]*.gpx", files):
+			gpxFiles.append(files)
 	newFiles = []
 	processLog = []
 	isNewFile = 0
@@ -259,7 +265,7 @@ def getFileList():
 		fh.close()
 
 	for file in gpxFiles:
-		fh = open("gpxFiles/" + file, 'r') #Open file with input name
+		fh = open(file, 'r') #Open file with input name
 		data = fh.readlines()
 		fh.close
 		for line in data: #Parse the date of the activity and we'll check if it's in the PMC
@@ -270,7 +276,7 @@ def getFileList():
 					pass
 				else:
 					processLog.append(date)
-					newFiles.append("gpxFiles/" + file)
+					newFiles.append(file)
 					isNewFile = 1
 				break
 	if isNewFile:
