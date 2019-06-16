@@ -150,7 +150,7 @@ def browserInit(downloadDir):
 
 	#Setup browser as headless
 	opts = Options()
-	#opts.headless = True
+	opts.headless = True
 
 	# Instantiate a Firefox browser object with the above-specified profile settings
 	print("Browser preferences configured")
@@ -277,7 +277,7 @@ def main():
 			clickArrow(browser)
 
 	#downloadFlag = 1
-	#downloadActivity(browser)
+	downloadActivity(browser)
 
 	
 

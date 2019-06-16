@@ -74,7 +74,7 @@ def plotRHR(data):
 	fig = plt.figure()
 	axis = fig.add_subplot(1,1,1)
 	#axis.xaxis.set_major_formatter(DateFormatter(plotFormat))
-	plt.scatter(Stress[startIndex:endIndex], Sleep[startIndex:endIndex])
+	plt.scatter(Stress[startIndex:endIndex], RHR[startIndex:endIndex])
 	plt.grid()
 	plt.xlabel(r'\textbf{Time}')
 	plt.ylabel(r'\textbf{RHR}')
@@ -83,22 +83,6 @@ def plotRHR(data):
 	plt.show(block=False)
 	raw_input()
 	plt.close() 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

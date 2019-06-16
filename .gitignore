@@ -7,3 +7,20 @@
 
 # For macOS support
 .DS_STORE
+=======
+# Compiled Source #
+*.exe
+*.o
+*.out
+bin/
+#
+*.log
+test_results.txt
+test_diff.txt
+# Maybe uncomment after development PMCData
+# binary *.fit file
+*.fit
+*.gpx
+*.pdf
+*.aux
+
