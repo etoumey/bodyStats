@@ -7,7 +7,7 @@ from selenium.webdriver.firefox.options import Options
 from os import getcwd,remove, listdir, rename
 from datetime import date, datetime
 import time
-
+import argparse
 
 def queryCredentials():
 	#This function loads credentials from the specified file. May be replaced with a user prompt not in development
@@ -287,4 +287,7 @@ def main():
 	
 
 if __name__ == "__main__":
+	parser = argparse.ArgumentParser(description = 'Fetches Resting Heart Rate (RHR), stress, and sleep reports from garmin connect up to a specified date.')
+	args = parser.parse_args()
+	
 	main()
