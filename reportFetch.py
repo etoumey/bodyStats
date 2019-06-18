@@ -218,7 +218,7 @@ def setDownloadFlag(desiredDate, dateRange):
 
 
 def main():
-	desiredDate = datetime(2019, 6, 12)
+	desiredDate = datetime(2019, 1, 1)
 	downloadFlag = 1
 
 	downloadDir = getcwd()
@@ -234,7 +234,7 @@ def main():
 		try:
 			dateRangeRHR = downloadReport(browser)
 			RHRReport = renameReport(dateRangeRHR, 'RHR')
-			print("RHR Download Success! %s") % RHRReport
+			print("RHR Download Success! %s" % RHRReport)
 			downloadFlag = setDownloadFlag(desiredDate, dateRangeRHR)
 			if downloadFlag:
 				clickArrow(browser)
@@ -245,14 +245,14 @@ def main():
 	downloadFlag = 1
 	if downloadFlag:
 		browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
-		desiredDate = datetime(2019, 6, 12)
+		desiredDate = datetime(2019, 1, 1)
 
 	while downloadFlag:
 		try:
 			dateRangeStress = downloadReport(browser)
 			stressReport = renameReport(dateRangeStress, 'STRESS')
-			print("Stress Download Success! %s") % stressReport
-			downloadFlag = setDownloadFlag(desiredDate, dateRangeRHR)
+			print("Stress Download Success! %s" % stressReport)
+			downloadFlag = setDownloadFlag(desiredDate, dateRangeStress)
 			if downloadFlag:
 				clickArrow(browser)
 		except:
@@ -262,14 +262,14 @@ def main():
 	downloadFlag = 1
 	if downloadFlag:
 		browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
-		desiredDate = datetime(2019, 6, 12)
+		desiredDate = datetime(2019, 1, 1)
 
 	while downloadFlag:
 		try:
 			dateRangeSleep = downloadReport(browser)
 			sleepReport = renameReport(dateRangeSleep, 'SLEEP')
-			print("Sleep Download Success! %s") % sleepReport
-			downloadFlag = setDownloadFlag(desiredDate, dateRangeRHR)
+			print("Sleep Download Success! %s" % sleepReport)
+			downloadFlag = setDownloadFlag(desiredDate, dateRangeSleep)
 			if downloadFlag:
 				clickArrow(browser)
 		except:
