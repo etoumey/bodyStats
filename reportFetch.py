@@ -218,7 +218,7 @@ def setDownloadFlag(desiredDate, dateRange):
 
 
 def main():
-	desiredDate = datetime(2019,06,12)
+	desiredDate = datetime(2019, 6, 12)
 	downloadFlag = 1
 
 	downloadDir = getcwd()
@@ -245,7 +245,7 @@ def main():
 	downloadFlag = 1
 	if downloadFlag:
 		browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
-		desiredDate = datetime(2019,06,12)
+		desiredDate = datetime(2019, 6, 12)
 
 	while downloadFlag:
 		try:
@@ -262,7 +262,7 @@ def main():
 	downloadFlag = 1
 	if downloadFlag:
 		browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
-		desiredDate = datetime(2019,06,12)
+		desiredDate = datetime(2019, 6, 12)
 
 	while downloadFlag:
 		try:
