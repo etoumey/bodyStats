@@ -113,22 +113,6 @@ def addTrimpToDB(trimp, date, connection): # Need to add support for non existen
 	return
 
 
-def backFill(PMC, lastDate, firstDate):
-	#lastDate and firstDate cannot already exist in PMC. 
-	dateFormat = "%Y-%m-%d %H:%M:%S"
-	delta = lastDate - firstDate
-	for j in range(0,len(PMC)):
-		if datetime.strptime(PMC[j][0], dateFormat) > firstDate:
-			j -= 1
-			break
-
-	#Filling in the rows since last run of tripy
-	for i in range (0, delta.days+1):
-		row = [str(firstDate + timedelta(days=i)), 0, -1, -1] #Using negative one as it is an impossible CTL/ATL value
-		PMC.insert(i+j+1, row)
-	return PMC
-
-
 def findAverage(PMC):
 	ATLdays = 7.0
 	CTLdays = 42.0
@@ -272,25 +256,6 @@ def getFileList():
 	return newFiles
 
 
-#def updatePMC():
-# 	with open('PMCData', 'r') as fh:
-# 		PMC = json.load(fh)
-# 		fh.close()
-
-# 	#First add all days since your last activity 
-# 	strDateFormat = "%Y-%m-%dT%H:%M:%S" #Just to extract the date from the string which includes the T, no T after this
-# 	dateFormat = "%Y-%m-%d %H:%M:%S"
-# 	lastDate = datetime.strptime(PMC[len(PMC)-1][0], dateFormat) # Most recent activity 
-
-# 	today = datetime.today()
-
-# 	PMC = backFill(PMC, today, lastDate + timedelta(days=1))
-# 	PMC = findAverage(PMC)
-# 	with open('PMCData', 'w') as fh:           
-# 		json.dump(PMC, fh)
-# 		fh.close()
-
-
 def makeReport(trimp, date):
 	printPMCMode()
 	reportFlag = 1 #Controls whether or not tex file gets compiled and archive is created. 
@@ -343,6 +308,8 @@ if newFiles:
 		trimp = calcTrimp(HR, t, HRR, RHR)
 		getNotes(date, trimp, HR)
 		addTrimpToDB(trimp, date, connection)
+
+		## insert propagation step here. 
 		generatePlot(HR, t, zones, tInZones, PMC)
 		makeReport(trimp, date)
 
