@@ -150,7 +150,7 @@ def browserInit(downloadDir):
 
 	#Setup browser as headless
 	opts = Options()
-	opts.headless = True
+	#opts.headless = True
 
 	# Instantiate a Firefox browser object with the above-specified profile settings
 	print("Browser preferences configured")
@@ -218,7 +218,7 @@ def setDownloadFlag(desiredDate, dateRange):
 
 
 def main():
-	desiredDate = datetime(2019, 1, 1)
+	desiredDate = datetime(2019, 6, 15)
 	downloadFlag = 1
 
 	downloadDir = getcwd()
@@ -245,7 +245,7 @@ def main():
 	downloadFlag = 1
 	if downloadFlag:
 		browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
-		desiredDate = datetime(2019, 1, 1)
+		desiredDate = datetime(2019, 6, 15)
 
 	while downloadFlag:
 		try:
@@ -262,7 +262,7 @@ def main():
 	downloadFlag = 1
 	if downloadFlag:
 		browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
-		desiredDate = datetime(2019, 1, 1)
+		desiredDate = datetime(2019, 6, 15)
 
 	while downloadFlag:
 		try:
@@ -270,6 +270,7 @@ def main():
 			sleepReport = renameReport(dateRangeSleep, 'SLEEP')
 			print("Sleep Download Success! %s" % sleepReport)
 			downloadFlag = setDownloadFlag(desiredDate, dateRangeSleep)
+			raw_input()
 			if downloadFlag:
 				clickArrow(browser)
 		except:
@@ -278,9 +279,6 @@ def main():
 
 	#downloadFlag = 1
 	downloadActivity(browser)
-
-	
-
 	browser.quit()
 
 

@@ -1,6 +1,6 @@
 import csv
 import sqlite3
-from os import listdir
+from os import listdir, rename, path
 import re
 from datetime import datetime, timedelta
 from matplotlib.patches import Rectangle
@@ -145,6 +145,15 @@ def buildDB(connection, dates, data, column):
 	connection.commit()
 
 
+def moveReports():
+	archiveLocation = 'csvArchive/'
+	fileList = listdir('.')
+
+	if path.isdir(archiveLocation):
+		for file in fileList:
+			if (re.match("RHR_\d{8}_\d{8}.csv", file) or re.match("SLEEP_\d{8}_\d{8}.csv", file) or re.match("STRESS_\d{8}_\d{8}.csv", file)):
+				print file
+				rename(file, archiveLocation + file)
 
 
 
@@ -157,5 +166,5 @@ dataStress, datesStress = parseStress(stressFiles)
 buildDB(connection, datesRHR, dataRHR, 'RHR')
 buildDB(connection, datesSleep, dataSleep, 'SLEEP')
 buildDB(connection, datesStress, dataStress, 'STRESS')
-
 connection.close()
+moveReports()
