@@ -31,8 +31,8 @@ def plotRHR(data):
 
 
 	endIndex = len(dates) 
-	if endIndex > 120:
-		startIndex = endIndex - 120
+	if endIndex > 30:
+		startIndex = endIndex - 30
 	else:
 		startIndex = 0
 
