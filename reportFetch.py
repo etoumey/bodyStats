@@ -22,25 +22,18 @@ def downloadReport(browser):
 	waitTime = 20 #Seconds to wait on landing page to load
 	exportXpath = '//*[@id="pageContainer"]/div/div[1]/div[2]/div/button'
 	dateXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[2]' 
-	titleXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/h4'
-	lastPointClass = 'highcharts-point'
+
 	# Inside reports window, switch to default frame
 	browser.switch_to_default_content()
-
-	# Wait for page to load
 	WebDriverWait(browser, waitTime).until(
 		EC.element_to_be_clickable((By.XPATH, exportXpath))
 	)
 
-	WebDriverWait(browser, waitTime).until(
-		EC.element_to_be_clickable((By.CLASS_NAME, lastPointClass))
-	)
-
-	browser.find_element_by_xpath(exportXpath).click()
-
-	dateElement = browser.find_element_by_xpath(dateXpath)
+	dateElement = WebDriverWait(browser, waitTime).until(
+		EC.presence_of_element_located((By.XPATH, dateXpath)))
 	dateRange = str(dateElement.text)
 
+	browser.find_element_by_xpath(exportXpath).click()
 	return dateRange
 
 
@@ -204,11 +197,24 @@ def login(browser):
 
 
 def clickArrow(browser):
-	browser.switch_to_default_content()
-
 	# Only need arrow if you want to do multiple weeks at a time. 
 	arrowXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[1]/button[1]'
+	dateXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[2]' 
+	waitTime = 20
+
+	browser.switch_to_default_content()
+	dateElement = WebDriverWait(browser, waitTime).until(
+		EC.presence_of_element_located((By.XPATH, dateXpath)))
+	#dateElement = browser.find_element_by_xpath(dateXpath)
+	pageDateRange = str(dateElement.text)
+	currentDateRange = pageDateRange
+
 	browser.find_element_by_xpath(arrowXpath).click()
+
+	while pageDateRange == currentDateRange:
+		dateElement = WebDriverWait(browser, waitTime).until(
+			EC.presence_of_element_located((By.XPATH, dateXpath)))
+		currentDateRange = str(dateElement.text)
 
 
 def setDownloadFlag(desiredDate, dateRange):
@@ -226,7 +232,7 @@ def setDownloadFlag(desiredDate, dateRange):
 
 def main():
 	desiredDate = datetime(2019, 6, 15)
-	downloadFlag = 1
+	downloadFlag = 0
 
 	downloadDir = getcwd()
 	# Head to garmin connect login page
@@ -249,7 +255,7 @@ def main():
 			print("Error fetching RHR Data...")
 			clickArrow(browser)
 
-	downloadFlag = 1
+	downloadFlag = 0
 	if downloadFlag:
 		browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
 		desiredDate = datetime(2019, 6, 15)
@@ -262,7 +268,7 @@ def main():
 			downloadFlag = setDownloadFlag(desiredDate, dateRangeStress)
 			if downloadFlag:
 				clickArrow(browser)
-		except:
+		except ValueError:
 			print("Error Fetching Stress Data...")
 			clickArrow(browser)
 		
@@ -272,19 +278,19 @@ def main():
 		desiredDate = datetime(2019, 6, 15)
 
 	while downloadFlag:
-		try:
-			dateRangeSleep = downloadReport(browser)
-			sleepReport = renameReport(dateRangeSleep, 'SLEEP')
-			print("Sleep Download Success! %s" % sleepReport)
-			downloadFlag = setDownloadFlag(desiredDate, dateRangeSleep)
-			if downloadFlag:
-				clickArrow(browser)
-		except:
-			print("Error Fetching Sleep Data...")
+		#try:
+		dateRangeSleep = downloadReport(browser)
+		sleepReport = renameReport(dateRangeSleep, 'SLEEP')
+		print("Sleep Download Success! %s" % sleepReport)
+		downloadFlag = setDownloadFlag(desiredDate, dateRangeSleep)
+		if downloadFlag:
 			clickArrow(browser)
+		#except:
+		#	print("Error Fetching Sleep Data...")
+		#	clickArrow(browser)
 
 	#downloadFlag = 1
-	downloadActivity(browser)
+	#downloadActivity(browser)
 	browser.quit()
 
 
