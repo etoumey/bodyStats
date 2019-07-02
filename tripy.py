@@ -10,6 +10,17 @@ from os import listdir, mkdir, path
 from subprocess import call
 import shutil
 import sys
+import re
+import sqlite3
+
+
+def initializeUserData():
+	connection = sqlite3.connect('userData.db')
+	sqlCreateTable = """ CREATE TABLE IF NOT EXISTS userData (date text NOT NULL, RHR real, SLEEP real, STRESS real, ATL real, CTL real, TSS real, PRIMARY KEY (date) ); """
+	cursor = connection.cursor()
+	cursor.execute(sqlCreateTable)
+	return connection
+
 
 def parseFile(fileName):
 	fh = open(fileName, 'r') #Open file with input name
@@ -81,65 +92,25 @@ def calcTrimp(HR, t, HRR, RHR):
 	return trimp
 
 
-def buildPMC(trimp, date): # Need to add support for non existent PMC
-	with open('PMCData', 'r') as fh:
-		PMC = json.load(fh)
-		fh.close()
+def addTrimpToDB(trimp, date, connection): # Need to add support for non existent PMC
+	cursor = connection.cursor()
 
 	#First add all days since your last activity 
 	strDateFormat = "%Y-%m-%dT%H:%M:%S" #Just to extract the date from the string which includes the T, no T after this
-	dateFormat = "%Y-%m-%d %H:%M:%S"
-	lastDate = datetime.strptime(PMC[len(PMC)-1][0], dateFormat) # Most recent activity 
+	dateFormatDB = "%Y-%m-%d 00:00:00" #This is the format that is in the dataBase
+	date = datetime.strptime(date, strDateFormat).strftime(dateFormatDB)
 
-	today = datetime.today()
-
-	PMC = backFill(PMC, today, lastDate + timedelta(days=1))
-	
-	date = datetime.strptime(date, strDateFormat).strftime(dateFormat) #Convert datetime object to a string matching saved PMC format. 
-	dup = 0 #Initialize with no dupes
-
-	for i in range(0,len(PMC)):
-		if (date == PMC[i][0] and PMC[i][3] != -1):
-			dup = 1 #you a bad boy
-	
-	#if dup == 1:
-	#	print "Error: file has already been included in PMC"
-
+	sql = '''SELECT date FROM userData WHERE date = ?''' 
+	cursor.execute(sql, (date,))
+	if cursor.fetchone():
+		sql = '''UPDATE userData SET TSS = ? WHERE date = ?''' 
+		cursor.execute(sql, (trimp, date))
 	else:
-		# Loop through PMC and insert the line appropriately 
-		newDate = datetime.strptime(date,dateFormat) #Convert date string to datetime object. 
-		ii = len(PMC) - 1
+		sql = '''INSERT INTO userData(date, TSS) VALUES(?, ?)''' 
+		cursor.execute(sql, (date, trimp))
 
-		while (ii > -1 and newDate < datetime.strptime(PMC[ii][0], dateFormat)):
-			ii -= 1
-		if ii == -1: #Earlier than start date of PMC
-			PMC.insert(0, [date, trimp, -1, -1])
-			PMC = backFill(PMC, datetime.strptime(PMC[1][0], dateFormat) - timedelta(days=1), datetime.strptime(date, dateFormat)+timedelta(days=1))
-		else:
-			PMC[ii] = [date, trimp, -1, -1] #Replace line of the PMC with real data
-
-	PMC = findAverage(PMC)
-
-	with open('PMCData', 'w') as fh:           
-		json.dump(PMC, fh)
-		fh.close()
-	return PMC
-
-
-def backFill(PMC, lastDate, firstDate):
-	#lastDate and firstDate cannot already exist in PMC. 
-	dateFormat = "%Y-%m-%d %H:%M:%S"
-	delta = lastDate - firstDate
-	for j in range(0,len(PMC)):
-		if datetime.strptime(PMC[j][0], dateFormat) > firstDate:
-			j -= 1
-			break
-
-	#Filling in the rows since last run of tripy
-	for i in range (0, delta.days+1):
-		row = [str(firstDate + timedelta(days=i)), 0, -1, -1] #Using negative one as it is an impossible CTL/ATL value
-		PMC.insert(i+j+1, row)
-	return PMC
+	connection.commit()
+	return
 
 
 def findAverage(PMC):
@@ -249,7 +220,12 @@ def printPMCMode():
 
 
 def getFileList():
-	gpxFiles = listdir("gpxFiles")
+	gpxFiles = []
+
+	allFiles = listdir('.')
+	for files in allFiles:
+		if re.search("[a-zA-Z0-9]*.gpx", files):
+			gpxFiles.append(files)
 	newFiles = []
 	processLog = []
 	isNewFile = 0
@@ -259,7 +235,7 @@ def getFileList():
 		fh.close()
 
 	for file in gpxFiles:
-		fh = open("gpxFiles/" + file, 'r') #Open file with input name
+		fh = open(file, 'r') #Open file with input name
 		data = fh.readlines()
 		fh.close
 		for line in data: #Parse the date of the activity and we'll check if it's in the PMC
@@ -270,7 +246,7 @@ def getFileList():
 					pass
 				else:
 					processLog.append(date)
-					newFiles.append("gpxFiles/" + file)
+					newFiles.append(file)
 					isNewFile = 1
 				break
 	if isNewFile:
@@ -278,25 +254,6 @@ def getFileList():
 	else:
 		print "Nothing new found, plotting PMC"
 	return newFiles
-
-
-def updatePMC():
-	with open('PMCData', 'r') as fh:
-		PMC = json.load(fh)
-		fh.close()
-
-	#First add all days since your last activity 
-	strDateFormat = "%Y-%m-%dT%H:%M:%S" #Just to extract the date from the string which includes the T, no T after this
-	dateFormat = "%Y-%m-%d %H:%M:%S"
-	lastDate = datetime.strptime(PMC[len(PMC)-1][0], dateFormat) # Most recent activity 
-
-	today = datetime.today()
-
-	PMC = backFill(PMC, today, lastDate + timedelta(days=1))
-	PMC = findAverage(PMC)
-	with open('PMCData', 'w') as fh:           
-		json.dump(PMC, fh)
-		fh.close()
 
 
 def makeReport(trimp, date):
@@ -339,8 +296,9 @@ def getNotes(date, trimp, HR):
 
 
 
+connection = initializeUserData()
 newFiles = getFileList()
-updatePMC()
+#updatePMC()
 
 if newFiles:
 	for fileName in newFiles:
@@ -349,7 +307,9 @@ if newFiles:
 		tInZones = getTimeInZones(HR, t, zones)
 		trimp = calcTrimp(HR, t, HRR, RHR)
 		getNotes(date, trimp, HR)
-		PMC = buildPMC(trimp, date)
+		addTrimpToDB(trimp, date, connection)
+
+		## insert propagation step here. 
 		generatePlot(HR, t, zones, tInZones, PMC)
 		makeReport(trimp, date)
 
