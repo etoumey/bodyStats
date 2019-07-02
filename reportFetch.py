@@ -25,15 +25,16 @@ def downloadReport(browser):
 
 	# Inside reports window, switch to default frame
 	browser.switch_to_default_content()
-	WebDriverWait(browser, waitTime).until(
-		EC.element_to_be_clickable((By.XPATH, exportXpath))
-	)
-
 	dateElement = WebDriverWait(browser, waitTime).until(
 		EC.presence_of_element_located((By.XPATH, dateXpath)))
 	dateRange = str(dateElement.text)
 
-	browser.find_element_by_xpath(exportXpath).click()
+	exportButton = WebDriverWait(browser, 5.0).until(
+		EC.element_to_be_clickable((By.XPATH, exportXpath))
+	)
+	if exportButton:
+		exportButton.click()
+	#browser.find_element_by_xpath(exportXpath).click()
 	return dateRange
 
 
@@ -275,7 +276,7 @@ def main():
 	downloadFlag = 1
 	if downloadFlag:
 		browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
-		desiredDate = datetime(2019, 6, 15)
+		desiredDate = datetime(2019, 5, 01)
 
 	while downloadFlag:
 		try:
