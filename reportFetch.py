@@ -29,11 +29,11 @@ def downloadReport(browser):
 
 	# Wait for page to load
 	WebDriverWait(browser, waitTime).until(
-		EC.element_to_be_clickable((By.CLASS_NAME, lastPointClass))
+		EC.element_to_be_clickable((By.XPATH, exportXpath))
 	)
 
 	WebDriverWait(browser, waitTime).until(
-		EC.element_to_be_clickable((By.XPATH, exportXpath))
+		EC.element_to_be_clickable((By.CLASS_NAME, lastPointClass))
 	)
 
 	browser.find_element_by_xpath(exportXpath).click()
@@ -157,7 +157,7 @@ def browserInit(downloadDir):
 
 	#Setup browser as headless
 	opts = Options()
-	#opts.headless = True
+	opts.headless = True
 
 	# Instantiate a Firefox browser object with the above-specified profile settings
 	print("Browser preferences configured")
