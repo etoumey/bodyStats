@@ -22,14 +22,21 @@ def downloadReport(browser):
 	waitTime = 20 #Seconds to wait on landing page to load
 	exportXpath = '//*[@id="pageContainer"]/div/div[1]/div[2]/div/button'
 	dateXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[2]' 
+	titleXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/h4'
+	lastPointClass = 'highcharts-point'
 	# Inside reports window, switch to default frame
 	browser.switch_to_default_content()
+
 	# Wait for page to load
-	element = WebDriverWait(browser, waitTime).until(
+	WebDriverWait(browser, waitTime).until(
+		EC.element_to_be_clickable((By.CLASS_NAME, lastPointClass))
+	)
+
+	WebDriverWait(browser, waitTime).until(
 		EC.element_to_be_clickable((By.XPATH, exportXpath))
 	)
-	browser.find_element_by_xpath(exportXpath).click()
 
+	browser.find_element_by_xpath(exportXpath).click()
 
 	dateElement = browser.find_element_by_xpath(dateXpath)
 	dateRange = str(dateElement.text)
@@ -270,7 +277,6 @@ def main():
 			sleepReport = renameReport(dateRangeSleep, 'SLEEP')
 			print("Sleep Download Success! %s" % sleepReport)
 			downloadFlag = setDownloadFlag(desiredDate, dateRangeSleep)
-			raw_input()
 			if downloadFlag:
 				clickArrow(browser)
 		except:
