@@ -20,7 +20,7 @@ def queryCredentials():
 	except IOError:
 		cred = []
 		print("Credentials file 'credentials.pass' not found. Supply ")
-		username = raw_input("Username: ")
+		username = input("Username: ")
 		password = getpass.getpass(prompt='Password: ')
 
 		cred.append(username + '\n')
