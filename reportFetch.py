@@ -288,7 +288,7 @@ def main():
 	downloadFlag = 1
 	if downloadFlag:
 		browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
-		desiredDate = datetime(2019, 5, 01)
+		desiredDate = datetime(2019, 5, 1)
 
 	while downloadFlag:
 		try:
