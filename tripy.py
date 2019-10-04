@@ -94,6 +94,13 @@ def calcTrimp(HR, t, HRR, RHR):
 
 def addTrimpToDB(trimp, date, connection): # Need to add support for non existent PMC
 	cursor = connection.cursor()
+	sql = '''ALTER TABLE userData ADD COLUMN TSS;'''
+	
+	try:
+		cursor.execute(sql)
+	except:
+		pass
+
 
 	#First add all days since your last activity 
 	strDateFormat = "%Y-%m-%dT%H:%M:%S" #Just to extract the date from the string which includes the T, no T after this
