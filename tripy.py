@@ -101,7 +101,6 @@ def addTrimpToDB(trimp, date, connection): # Need to add support for non existen
 	except:
 		pass
 
-
 	#First add all days since your last activity 
 	strDateFormat = "%Y-%m-%dT%H:%M:%S" #Just to extract the date from the string which includes the T, no T after this
 	dateFormatDB = "%Y-%m-%d 00:00:00" #This is the format that is in the dataBase
@@ -135,6 +134,10 @@ def findAverage(PMC):
 	#  training load (yesterday)x(exp(-1/k))+ TSS (today) x (1-exp(-1/k)) 
 
 	return PMC
+
+
+#def updatePMC(connection, date):
+	# We need to find the most recent non-null ATL/CTL entry in the DB
 
 
 def generatePlot(HR, t, zones, tInZones, PMC):
@@ -305,19 +308,19 @@ def getNotes(date, trimp, HR):
 
 connection = initializeUserData()
 newFiles = getFileList()
-#updatePMC()
 
 if newFiles:
 	for fileName in newFiles:
+		print fileName
 		HR, t, date = parseFile(fileName)
 		zones, HRR, RHR = getZones()
 		tInZones = getTimeInZones(HR, t, zones)
 		trimp = calcTrimp(HR, t, HRR, RHR)
-		getNotes(date, trimp, HR)
+		#getNotes(date, trimp, HR)
 		addTrimpToDB(trimp, date, connection)
-
 		## insert propagation step here. 
-		generatePlot(HR, t, zones, tInZones, PMC)
-		makeReport(trimp, date)
+		#updatePMC(date, connection)
+		#generatePlot(HR, t, zones, tInZones, PMC)
+		#makeReport(trimp, date)
 
 printPMCMode()
