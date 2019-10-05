@@ -131,15 +131,17 @@ def pullDates(files, DOW):
 def buildDB(connection, dates, data, column):
 	cursor = connection.cursor()
 
-	sql = '''SELECT date FROM userData WHERE date = ?''' 
+	sqlTest = '''SELECT date FROM userData WHERE date = ?''' 
+	sqlUpd = '''UPDATE userData SET %s = ? WHERE date = ?''' % column
+	sqlIns = '''INSERT INTO userData(date, %s) VALUES(?, ?)''' % column
+
+
 	for ii in range(0,len(dates)):
-		cursor.execute(sql, (dates[ii],))
+		cursor.execute(sqlTest, (dates[ii],))
 		if cursor.fetchone():
-			sql = '''UPDATE userData SET %s = ? WHERE date = ?''' % column
-			cursor.execute(sql, (data[ii], dates[ii]))
+			cursor.execute(sqlUpd, (data[ii], dates[ii]))
 		else:
-			sql = '''INSERT INTO userData(date, %s) VALUES(?, ?)''' % column
-			cursor.execute(sql, (dates[ii], data[ii]))
+			cursor.execute(sqlIns, (dates[ii], data[ii]))
 	#sql = '''SELECT * FROM userData ORDER BY date ASC;'''
 	#cursor.execute(sql)
 	connection.commit()

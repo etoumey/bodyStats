@@ -6,6 +6,9 @@ from scipy.stats import gaussian_kde
 import json
 from datetime import datetime, timedelta
 import pandas as pd
+from pandas.plotting import register_matplotlib_converters
+register_matplotlib_converters()
+
 from os import listdir, mkdir, path
 from subprocess import call
 import shutil
@@ -285,9 +288,9 @@ def getFileList():
 					isNewFile = 1
 				break
 	if isNewFile:
-		print "New files found!"
+		print("New files found!")
 	else:
-		print "Nothing new found, plotting PMC"
+		print("Nothing new found, plotting PMC")
 	return newFiles
 
 
@@ -336,7 +339,7 @@ newFiles = getFileList()
 
 if newFiles:
 	for fileName in newFiles:
-		print fileName
+		print(fileName)
 		HR, t, date = parseFile(fileName)
 		zones, HRR, RHR = getZones()
 		tInZones = getTimeInZones(HR, t, zones)
