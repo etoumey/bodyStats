@@ -119,23 +119,6 @@ def addTrimpToDB(trimp, date, connection): # Need to add support for non existen
 	return
 
 
-def findAverage(PMC):
-	ATLdays = 7.0
-	CTLdays = 42.0
-	#first, need to find first -1 
-	for i in range(0,len(PMC)):
-		if PMC[i][3] == -1:
-			break
-
-	for j in range(i, len(PMC)):
-		PMC[j][2] = PMC[j-1][2] + (PMC[j][1] - PMC[j-1][2])/ATLdays #ATL added to PMC
-		PMC[j][3] = PMC[j-1][3] + (PMC[j][1] - PMC[j-1][3])/CTLdays #ATL added to PMC
-	# Try this one first: Todays CTL = Yesterday's CTL + (Today's TRIMP - Yesterday's CTL)/time
-	#  training load (yesterday)x(exp(-1/k))+ TSS (today) x (1-exp(-1/k)) 
-
-	return PMC
-
-
 def updatePMC(date, connection):
 	cursor = connection.cursor()
 	ATLDays = 7.0
@@ -178,8 +161,6 @@ def updatePMC(date, connection):
 		cursor.execute(sqlUpd, (ATLToday, CTLToday, currentDate))
 
 	connection.commit()
-
-		
 
 
 def generatePlot(HR, t, zones, tInZones, PMC):
@@ -358,11 +339,11 @@ if newFiles:
 		zones, HRR, RHR = getZones()
 		tInZones = getTimeInZones(HR, t, zones)
 		trimp = calcTrimp(HR, t, HRR, RHR)
-		#getNotes(date, trimp, HR)
+		getNotes(date, trimp, HR)
 		addTrimpToDB(trimp, date, connection)
 		## insert propagation step here. 
 		updatePMC(date, connection)
-		#generatePlot(HR, t, zones, tInZones, PMC)
-		#makeReport(trimp, date)
+		generatePlot(HR, t, zones, tInZones, PMC)
+		makeReport(trimp, date)
 
 printPMCMode()
