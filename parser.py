@@ -160,7 +160,7 @@ def moveReports():
 connection = initializeUserData()
 rhrFiles, sleepFiles, stressFiles = getFileList()
 dataRHR, datesRHR = parseRHR(rhrFiles)
-print len(dataRHR) , len(datesRHR)
+print(len(dataRHR) , len(datesRHR))
 dataSleep, datesSleep = parseSleep(sleepFiles)
 dataStress, datesStress = parseStress(stressFiles)
 buildDB(connection, datesRHR, dataRHR, 'RHR')
