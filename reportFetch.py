@@ -8,12 +8,24 @@ from os import getcwd,remove, listdir, rename
 from datetime import date, datetime
 import time
 import argparse
+import getpass
 
 def queryCredentials():
 	#This function loads credentials from the specified file. May be replaced with a user prompt not in development
-	fid = open("credentials.pass", 'r')
-	cred = fid.readlines()
-	fid.close()
+	try:
+		fid = open("credentials.pass", 'r')
+		cred = fid.readlines()
+		fid.close()
+
+	except IOError:
+		cred = []
+		print("Credentials file 'credentials.pass' not found. Supply ")
+		username = input("Username: ")
+		password = getpass.getpass(prompt='Password: ')
+
+		cred.append(username + '\n')
+		cred.append(password + '\n')
+
 	print("Credentials sucessfully loaded...")
 	return cred
 
@@ -21,7 +33,7 @@ def queryCredentials():
 def downloadReport(browser):
 	waitTime = 20 #Seconds to wait on landing page to load
 	exportXpath = '//*[@id="pageContainer"]/div/div[1]/div[2]/div/button'
-	dateXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[2]' 
+	dateXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[2]'
 
 	# Inside reports window, switch to default frame
 	browser.switch_to_default_content()
@@ -58,7 +70,7 @@ def downloadActivity(browser):
 	#DESTROY THE ANNOYING ELEMENT
 	annoyingElement = browser.find_element_by_xpath(preloaderXpath)
 	browser.execute_script("arguments[0].style.visibility='hidden'", annoyingElement)
-	
+
 	#continue with life like a good boy
 	element = WebDriverWait(browser, waitTime).until(
 		EC.visibility_of_element_located((By.XPATH, activityXpath)))
@@ -104,7 +116,7 @@ def formatDateString(dateRange):
 
 	dateRange = dateRange.replace(',','') #strip out commas
 	dateRange = dateRange.split(' ')
-	
+
 	if dateRange[3] == '-':
 		monthIndex = 4
 	else:
@@ -124,7 +136,7 @@ def formatDateString(dateRange):
 		elif (dateRange[ii] == 'Jun'):
 			month[int(ii/3)] = 6
 		elif (dateRange[ii] == 'Jul'):
-			month[int(ii/3)] = 7		
+			month[int(ii/3)] = 7
 		elif (dateRange[ii] == 'Aug'):
 			month[int(ii/3)] = 8
 		elif (dateRange[ii] == 'Sep'):
@@ -135,7 +147,7 @@ def formatDateString(dateRange):
 			month[int(ii/3)] = 11
 		elif (dateRange[ii] == 'Dec'):
 			month[int(ii/3)] = 12
-	
+
 	if monthIndex == 3:
 		dateString = str(int(float(dateRange[5])*10000 + month[0]*100 + float(dateRange[1]))) + '_' + str(int(float(dateRange[5])*10000 + month[1]*100 + float(dateRange[4])))
 	else:
@@ -145,7 +157,7 @@ def formatDateString(dateRange):
 
 
 def browserInit(downloadDir):
-	
+
 	# Set Firefox preferences -- specifically to download *.csv files w/o raising a confirmation dialog box
 	ffProfile = webdriver.FirefoxProfile()
 	ffProfile.set_preference('browser.download.folderList', 2) # custom location
@@ -161,7 +173,7 @@ def browserInit(downloadDir):
 	print("Browser preferences configured")
 	browser = webdriver.Firefox(ffProfile, options = opts)
 	print("Launching browser")
-	
+
 	return browser
 
 
@@ -202,9 +214,9 @@ def login(browser):
 
 
 def clickArrow(browser):
-	# Only need arrow if you want to do multiple weeks at a time. 
+	# Only need arrow if you want to do multiple weeks at a time.
 	arrowXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[1]/button[1]'
-	dateXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[2]' 
+	dateXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[2]'
 	waitTime = 20
 
 	browser.switch_to_default_content()
@@ -276,11 +288,11 @@ def main():
 		except ValueError:
 			print("Error Fetching Stress Data...")
 			clickArrow(browser)
-		
-	downloadFlag = 0
+
+	downloadFlag = 1
 	if downloadFlag:
 		browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
-		desiredDate = datetime(2015, 12, 25)
+		desiredDate = datetime(2019, 5, 1)
 
 	while downloadFlag:
 		try:
@@ -299,10 +311,10 @@ def main():
 	browser.quit()
 
 
-	
+
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description = 'Fetches Resting Heart Rate (RHR), stress, and sleep reports from garmin connect up to a specified date.')
 	args = parser.parse_args()
-	
+
 	main()
