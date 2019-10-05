@@ -65,7 +65,7 @@ def downloadActivity(browser):
 
 	browser.find_element_by_xpath(activityXpath).click()
 
-	for i in range(1,200):
+	for i in range(1,10):
 		WebDriverWait(browser, waitTime).until(
 			EC.element_to_be_clickable((By.XPATH, gearXpath))
 			)
