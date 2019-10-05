@@ -138,6 +138,8 @@ def findAverage(PMC):
 
 def updatePMC(date, connection):
 	cursor = connection.cursor()
+	ATLDays = 7.0
+	CTLDays = 42.0
 
 	# We need to find the most recent non-null ATL/CTL entry in the DB
 	sql = '''SELECT * FROM userData WHERE ATL IS NULL ORDER BY date ASC'''
@@ -149,9 +151,35 @@ def updatePMC(date, connection):
 	endDate = datetime.strptime(date, dateStringT)
 	delta = endDate - startDate
 
+	sql = '''SELECT ATL, CTL, IFNULL(TSS, 0) FROM userData WHERE date = ?;'''
+	sqlUpd = '''UPDATE userData SET ATL = ?, CTL = ? WHERE date = ?''' 
+	sqlIns = '''INSERT INTO userData(date) VALUES(?)'''
+	# to calculate today, we need to fetch yesterday first
+	try:
+		stats = cursor.execute(sql, (startDate + timedelta(days=-1),)).fetchone()
+		ATLYesterday = stats[0]
+		CTLYesterday = stats[1]
+	except:
+		ATLYesterday = 0
+		CTLYesterday = 0
+
 	for ii in range (0, delta.days):
 		currentDate = startDate + timedelta(days=ii)
+		stats = cursor.execute(sql, (currentDate,)).fetchone()
+		if stats:
+			TSSToday = float(stats[2])
+		else:
+			cursor.execute(sqlIns, (currentDate,))
+		ATLToday = ATLYesterday + (TSSToday - ATLYesterday) / ATLDays
+		CTLToday = CTLYesterday + (TSSToday - CTLYesterday) / CTLDays
+		ATLYesterday = ATLToday
+		CTLYesterday = CTLToday
+		print ATLToday, CTLToday
+		cursor.execute(sqlUpd, (ATLToday, CTLToday, currentDate))
 
+	connection.commit()
+
+		
 
 
 def generatePlot(HR, t, zones, tInZones, PMC):
