@@ -131,8 +131,8 @@ def pullDates(files, DOW):
 def buildDB(connection, dates, data, column):
 	cursor = connection.cursor()
 
+	sql = '''SELECT date FROM userData WHERE date = ?''' 
 	for ii in range(0,len(dates)):
-		sql = '''SELECT date FROM userData WHERE date = ?''' 
 		cursor.execute(sql, (dates[ii],))
 		if cursor.fetchone():
 			sql = '''UPDATE userData SET %s = ? WHERE date = ?''' % column

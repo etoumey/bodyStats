@@ -136,8 +136,22 @@ def findAverage(PMC):
 	return PMC
 
 
-#def updatePMC(connection, date):
+def updatePMC(date, connection):
+	cursor = connection.cursor()
+
 	# We need to find the most recent non-null ATL/CTL entry in the DB
+	sql = '''SELECT * FROM userData WHERE ATL IS NULL ORDER BY date ASC'''
+	startDate = cursor.execute(sql).fetchone()
+
+	dateString = "%Y-%m-%d %H:%M:%S"
+	dateStringT = "%Y-%m-%dT%H:%M:%S"
+	startDate = datetime.strptime(startDate[0], dateString)
+	endDate = datetime.strptime(date, dateStringT)
+	delta = endDate - startDate
+
+	for ii in range (0, delta.days):
+		currentDate = startDate + timedelta(days=ii)
+
 
 
 def generatePlot(HR, t, zones, tInZones, PMC):
@@ -319,7 +333,7 @@ if newFiles:
 		#getNotes(date, trimp, HR)
 		addTrimpToDB(trimp, date, connection)
 		## insert propagation step here. 
-		#updatePMC(date, connection)
+		updatePMC(date, connection)
 		#generatePlot(HR, t, zones, tInZones, PMC)
 		#makeReport(trimp, date)
 
