@@ -152,7 +152,7 @@ def moveReports():
 	if path.isdir(archiveLocation):
 		for file in fileList:
 			if (re.match("RHR_\d{8}_\d{8}.csv", file) or re.match("SLEEP_\d{8}_\d{8}.csv", file) or re.match("STRESS_\d{8}_\d{8}.csv", file)):
-				print file
+				print(file)
 				rename(file, archiveLocation + file)
 
 
