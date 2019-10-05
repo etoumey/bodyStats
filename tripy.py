@@ -128,42 +128,44 @@ def updatePMC(date, connection):
 	sql = '''SELECT * FROM userData WHERE ATL IS NULL ORDER BY date ASC'''
 	startDate = cursor.execute(sql).fetchone()
 
-	dateString = "%Y-%m-%d %H:%M:%S"
-	dateStringT = "%Y-%m-%dT%H:%M:%S"
-	startDate = datetime.strptime(startDate[0], dateString)
-	endDate = datetime.strptime(date, dateStringT)
-	delta = endDate - startDate
+	if startDate:
+		dateString = "%Y-%m-%d %H:%M:%S"
+		dateStringT = "%Y-%m-%dT%H:%M:%S"
+		startDate = datetime.strptime(startDate[0], dateString)
+		endDate = datetime.strptime(date, dateStringT)
+		delta = endDate - startDate
 
-	sql = '''SELECT ATL, CTL, IFNULL(TSS, 0) FROM userData WHERE date = ?;'''
-	sqlUpd = '''UPDATE userData SET ATL = ?, CTL = ? WHERE date = ?''' 
-	sqlIns = '''INSERT INTO userData(date) VALUES(?)'''
-	# to calculate today, we need to fetch yesterday first
-	try:
-		stats = cursor.execute(sql, (startDate + timedelta(days=-1),)).fetchone()
-		ATLYesterday = stats[0]
-		CTLYesterday = stats[1]
-	except:
-		ATLYesterday = 0
-		CTLYesterday = 0
+		sql = '''SELECT ATL, CTL, IFNULL(TSS, 0) FROM userData WHERE date = ?;'''
+		sqlUpd = '''UPDATE userData SET ATL = ?, CTL = ? WHERE date = ?''' 
+		sqlIns = '''INSERT INTO userData(date) VALUES(?)'''
+		# to calculate today, we need to fetch yesterday first
+		try:
+			stats = cursor.execute(sql, (startDate + timedelta(days=-1),)).fetchone()
+			ATLYesterday = stats[0]
+			CTLYesterday = stats[1]
+		except:
+			ATLYesterday = 0
+			CTLYesterday = 0
 
-	for ii in range (0, delta.days):
-		currentDate = startDate + timedelta(days=ii)
-		stats = cursor.execute(sql, (currentDate,)).fetchone()
-		if stats:
-			TSSToday = float(stats[2])
-		else:
-			cursor.execute(sqlIns, (currentDate,))
-		ATLToday = ATLYesterday + (TSSToday - ATLYesterday) / ATLDays
-		CTLToday = CTLYesterday + (TSSToday - CTLYesterday) / CTLDays
-		ATLYesterday = ATLToday
-		CTLYesterday = CTLToday
-		print ATLToday, CTLToday
-		cursor.execute(sqlUpd, (ATLToday, CTLToday, currentDate))
+		for ii in range (0, delta.days + 1):
+			currentDate = startDate + timedelta(days=ii)
+			stats = cursor.execute(sql, (currentDate,)).fetchone()
+			if stats:
+				TSSToday = float(stats[2])
+			else:
+				cursor.execute(sqlIns, (currentDate,))
+			ATLToday = ATLYesterday + (TSSToday - ATLYesterday) / ATLDays
+			CTLToday = CTLYesterday + (TSSToday - CTLYesterday) / CTLDays
+			ATLYesterday = ATLToday
+			CTLYesterday = CTLToday
+			cursor.execute(sqlUpd, (ATLToday, CTLToday, currentDate))
 
-	connection.commit()
+		connection.commit()
+	else:
+		pass
 
 
-def generatePlot(HR, t, zones, tInZones, PMC):
+def generatePlot(HR, t, zones, tInZones):
 	plt.rc('text', usetex=True)
 	plt.rc('font', family='serif')
 	plt.figure()
@@ -343,7 +345,7 @@ if newFiles:
 		addTrimpToDB(trimp, date, connection)
 		## insert propagation step here. 
 		updatePMC(date, connection)
-		generatePlot(HR, t, zones, tInZones, PMC)
+		generatePlot(HR, t, zones, tInZones)
 		makeReport(trimp, date)
 
 printPMCMode()
