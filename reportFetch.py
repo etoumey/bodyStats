@@ -86,7 +86,7 @@ def downloadActivity(browser):
 
 	browser.find_element_by_xpath(activityXpath).click()
 
-	for i in range(1,10):
+	for i in range(1,1):
 		WebDriverWait(browser, waitTime).until(
 			EC.element_to_be_clickable((By.XPATH, gearXpath))
 			)
@@ -176,7 +176,7 @@ def browserInit(downloadDir):
 
 	#Setup browser as headless
 	opts = Options()
-	opts.headless = True
+	opts.headless = False
 
 	# Instantiate a Firefox browser object with the above-specified profile settings
 	print("Browser preferences configured")
@@ -260,17 +260,18 @@ def getDesiredDate(connection, reportType):
 	cursor = connection.cursor()
 	dateFormat = "%Y-%m-%d %H:%M:%S"
 	# Find the oldest NULL value of the given report type
-	sql = '''SELECT * FROM userData WHERE %s IS NULL ORDER BY date ASC''' % reportType
+	sql = '''SELECT * FROM userData WHERE %s IS NOT NULL ORDER BY date DESC''' % reportType
 	desiredDate = cursor.execute(sql).fetchone()
-	desiredDate = datetime.strptime(desiredDate[0], dateFormat)
-
-	# If a NULL value exists, the day before the NULL our desired date
+	
+	# Take the day before the first non-null day
 	if desiredDate:
-		# This is day before NULL
-		desiredDate -= timedelta(days=1)
+		desiredDate = datetime.strptime(desiredDate[0], dateFormat)
+		if ((datetime.now() - desiredDate).days < 1):
+			# Make it a zero so we can just skip-a-dip the report
+			desiredDate = 0
 	else:
-		# Make it a zero so we can just skip-a-dip the report
-		desiredDate = 0
+		# If you are here, there are ONLY NULL values. Maybe you just got a new garmin
+		desiredDate = datetime.now()
 
 	return desiredDate
 
@@ -278,16 +279,19 @@ def getDesiredDate(connection, reportType):
 def main():
 	# Initialize everything
 	connection = initializeUserData()
-	downloadDir = getcwd()
 	downloadFlag = 0
-	# Head to garmin connect login page
-	browser = browserInit(downloadDir)
 
-	login(browser)
+	desiredDateRHR = getDesiredDate(connection, 'RHR')
+	desiredDateStress = getDesiredDate(connection, 'STRESS')
+	desiredDateSleep = getDesiredDate(connection, 'SLEEP')
 
-	desiredDate = getDesiredDate(connection, 'RHR')
-	print(desiredDate)
-	if desiredDate:
+	if (desiredDateRHR or desiredDateStress or desiredDateSleep):
+		downloadDir = getcwd()
+		# Head to garmin connect login page
+		browser = browserInit(downloadDir)
+		login(browser)
+
+	if desiredDateRHR:
 		browser.get('https://connect.garmin.com/modern/report/60/wellness/last_seven_days') #RHR report
 		downloadFlag = 1
 
@@ -303,9 +307,8 @@ def main():
 			print("Error fetching RHR Data...")
 			clickArrow(browser)
 
-	desiredDate = getDesiredDate(connection, 'STRESS')
 
-	if desiredDate:
+	if desiredDateStress:
 		browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
 		downloadFlag = 1
 
@@ -321,9 +324,9 @@ def main():
 			print("Error Fetching Stress Data...")
 			clickArrow(browser)
 
-	desiredDate = getDesiredDate(connection, 'SLEEP')
+	
 
-	if desiredDate:
+	if desiredDateSleep:
 		browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
 		downloadFlag = 1
 
