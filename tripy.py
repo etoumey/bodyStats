@@ -251,10 +251,10 @@ def printPMCMode():
 	plt.xlabel(r'\textbf{Time}')
 	plt.ylabel(r'\textbf{Training Load}')
 	plt.title(r'\textbf{Performance Manager Chart}')
-	#plt.show(block=False)
-	#raw_input()
+	plt.show(block=False)
+	input()
 	plt.savefig('activityArchive/src/PMC.pdf')
-	plt.close() 
+	plt.close()
 
 
 def getFileList():
@@ -319,7 +319,7 @@ def makeReport(trimp, date):
 
 
 def getNotes(date, trimp, HR):
-	noteContent = raw_input('Please enter a workout note for ' + str(date) + ' with a TRIMP of ' + str(trimp) + ':')
+	noteContent = input('Please enter a workout note for ' + str(date) + ' with a TRIMP of ' + str(trimp) + ':')
 	with open('activityArchive/src/notes.tex', 'w') as fh:
 		fh.write(str(noteContent))
 
