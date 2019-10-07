@@ -6,6 +6,9 @@ from scipy.stats import gaussian_kde
 import json
 from datetime import datetime, timedelta
 import pandas as pd
+from pandas.plotting import register_matplotlib_converters
+register_matplotlib_converters()
+
 from os import listdir, mkdir, path
 from subprocess import call
 import shutil
@@ -94,6 +97,12 @@ def calcTrimp(HR, t, HRR, RHR):
 
 def addTrimpToDB(trimp, date, connection): # Need to add support for non existent PMC
 	cursor = connection.cursor()
+	sql = '''ALTER TABLE userData ADD COLUMN TSS;'''
+	
+	try:
+		cursor.execute(sql)
+	except:
+		pass
 
 	#First add all days since your last activity 
 	strDateFormat = "%Y-%m-%dT%H:%M:%S" #Just to extract the date from the string which includes the T, no T after this
@@ -113,24 +122,53 @@ def addTrimpToDB(trimp, date, connection): # Need to add support for non existen
 	return
 
 
-def findAverage(PMC):
-	ATLdays = 7.0
-	CTLdays = 42.0
-	#first, need to find first -1 
-	for i in range(0,len(PMC)):
-		if PMC[i][3] == -1:
-			break
+def updatePMC(date, connection):
+	cursor = connection.cursor()
+	ATLDays = 7.0
+	CTLDays = 42.0
 
-	for j in range(i, len(PMC)):
-		PMC[j][2] = PMC[j-1][2] + (PMC[j][1] - PMC[j-1][2])/ATLdays #ATL added to PMC
-		PMC[j][3] = PMC[j-1][3] + (PMC[j][1] - PMC[j-1][3])/CTLdays #ATL added to PMC
-	# Try this one first: Todays CTL = Yesterday's CTL + (Today's TRIMP - Yesterday's CTL)/time
-	#  training load (yesterday)x(exp(-1/k))+ TSS (today) x (1-exp(-1/k)) 
+	# We need to find the most recent non-null ATL/CTL entry in the DB
+	sql = '''SELECT * FROM userData WHERE ATL IS NULL ORDER BY date ASC'''
+	startDate = cursor.execute(sql).fetchone()
 
-	return PMC
+	if startDate:
+		dateString = "%Y-%m-%d %H:%M:%S"
+		dateStringT = "%Y-%m-%dT%H:%M:%S"
+		startDate = datetime.strptime(startDate[0], dateString)
+		endDate = datetime.strptime(date, dateStringT)
+		delta = endDate - startDate
+
+		sql = '''SELECT ATL, CTL, IFNULL(TSS, 0) FROM userData WHERE date = ?;'''
+		sqlUpd = '''UPDATE userData SET ATL = ?, CTL = ? WHERE date = ?''' 
+		sqlIns = '''INSERT INTO userData(date) VALUES(?)'''
+		# to calculate today, we need to fetch yesterday first
+		try:
+			stats = cursor.execute(sql, (startDate + timedelta(days=-1),)).fetchone()
+			ATLYesterday = stats[0]
+			CTLYesterday = stats[1]
+		except:
+			ATLYesterday = 0
+			CTLYesterday = 0
+
+		for ii in range (0, delta.days + 1):
+			currentDate = startDate + timedelta(days=ii)
+			stats = cursor.execute(sql, (currentDate,)).fetchone()
+			if stats:
+				TSSToday = float(stats[2])
+			else:
+				cursor.execute(sqlIns, (currentDate,))
+			ATLToday = ATLYesterday + (TSSToday - ATLYesterday) / ATLDays
+			CTLToday = CTLYesterday + (TSSToday - CTLYesterday) / CTLDays
+			ATLYesterday = ATLToday
+			CTLYesterday = CTLToday
+			cursor.execute(sqlUpd, (ATLToday, CTLToday, currentDate))
+
+		connection.commit()
+	else:
+		pass
 
 
-def generatePlot(HR, t, zones, tInZones, PMC):
+def generatePlot(HR, t, zones, tInZones):
 	plt.rc('text', usetex=True)
 	plt.rc('font', family='serif')
 	plt.figure()
@@ -213,10 +251,10 @@ def printPMCMode():
 	plt.xlabel(r'\textbf{Time}')
 	plt.ylabel(r'\textbf{Training Load}')
 	plt.title(r'\textbf{Performance Manager Chart}')
-	#plt.show(block=False)
-	#raw_input()
+	plt.show(block=False)
+	input()
 	plt.savefig('activityArchive/src/PMC.pdf')
-	plt.close() 
+	plt.close()
 
 
 def getFileList():
@@ -250,9 +288,9 @@ def getFileList():
 					isNewFile = 1
 				break
 	if isNewFile:
-		print "New files found!"
+		print("New files found!")
 	else:
-		print "Nothing new found, plotting PMC"
+		print("Nothing new found, plotting PMC")
 	return newFiles
 
 
@@ -281,7 +319,7 @@ def makeReport(trimp, date):
 
 
 def getNotes(date, trimp, HR):
-	noteContent = raw_input('Please enter a workout note for ' + str(date) + ' with a TRIMP of ' + str(trimp) + ':')
+	noteContent = input('Please enter a workout note for ' + str(date) + ' with a TRIMP of ' + str(trimp) + ':')
 	with open('activityArchive/src/notes.tex', 'w') as fh:
 		fh.write(str(noteContent))
 
@@ -298,19 +336,19 @@ def getNotes(date, trimp, HR):
 
 connection = initializeUserData()
 newFiles = getFileList()
-#updatePMC()
 
 if newFiles:
 	for fileName in newFiles:
+		print(fileName)
 		HR, t, date = parseFile(fileName)
 		zones, HRR, RHR = getZones()
 		tInZones = getTimeInZones(HR, t, zones)
 		trimp = calcTrimp(HR, t, HRR, RHR)
 		getNotes(date, trimp, HR)
 		addTrimpToDB(trimp, date, connection)
-
 		## insert propagation step here. 
-		generatePlot(HR, t, zones, tInZones, PMC)
+		updatePMC(date, connection)
+		generatePlot(HR, t, zones, tInZones)
 		makeReport(trimp, date)
 
 printPMCMode()

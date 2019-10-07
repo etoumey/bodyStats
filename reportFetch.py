@@ -57,6 +57,7 @@ def downloadActivity(browser):
 	preloaderXpath = '//*[@id="pageContainer"]/div/div[2]/div[1]'
 	gearXpath = '//*[@id="activityToolbarViewPlaceholder"]/div[2]/div[3]/button/i'
 	downloadXpath = '//*[@id="btn-export-gpx"]/a'
+	arrowXpath = '//*[@id="activityIntroViewPlaceholder"]/div[2]/button[1]/i'
 
 	browser.get('https://connect.garmin.com/modern/activities') #Activity page
 
@@ -76,16 +77,19 @@ def downloadActivity(browser):
 
 	browser.find_element_by_xpath(activityXpath).click()
 
-	WebDriverWait(browser, waitTime).until(
-		EC.element_to_be_clickable((By.XPATH, gearXpath))
-		)
-	browser.find_element_by_xpath(gearXpath).click()
+	for i in range(1,10):
+		WebDriverWait(browser, waitTime).until(
+			EC.element_to_be_clickable((By.XPATH, gearXpath))
+			)
+		browser.find_element_by_xpath(gearXpath).click()
+		
+		WebDriverWait(browser, waitTime).until(
+			EC.element_to_be_clickable((By.XPATH, downloadXpath))
+			)	
 
-	WebDriverWait(browser, waitTime).until(
-		EC.element_to_be_clickable((By.XPATH, downloadXpath))
-		)
-
-	browser.find_element_by_xpath(downloadXpath).click()
+		browser.find_element_by_xpath(downloadXpath).click()
+		print("Downloaded another")
+		browser.find_element_by_xpath(arrowXpath).click()
 
 
 def renameReport(dateRange, report):
@@ -244,8 +248,8 @@ def setDownloadFlag(desiredDate, dateRange):
 
 
 def main():
-	desiredDate = datetime(2019, 6, 15)
-	downloadFlag = 1
+	desiredDate = datetime(2015, 12, 25)
+	downloadFlag = 0
 
 	downloadDir = getcwd()
 	# Head to garmin connect login page
@@ -268,10 +272,10 @@ def main():
 			print("Error fetching RHR Data...")
 			clickArrow(browser)
 
-	downloadFlag = 1
+	downloadFlag = 0
 	if downloadFlag:
 		browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
-		desiredDate = datetime(2019, 6, 15)
+		desiredDate = datetime(2015, 12, 25)
 
 	while downloadFlag:
 		try:
@@ -302,7 +306,7 @@ def main():
 			print("Error Fetching Sleep Data...")
 			clickArrow(browser)
 
-	downloadFlag = 0
+	downloadFlag = 1
 	downloadActivity(browser)
 	browser.quit()
 

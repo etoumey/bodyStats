@@ -8,7 +8,7 @@ from matplotlib.patches import Rectangle
 
 def initializeUserData():
 	connection = sqlite3.connect('userData.db')
-	sqlCreateTable = """ CREATE TABLE IF NOT EXISTS userData (date text NOT NULL, RHR real, SLEEP real, STRESS real, ATL real, CTL real, PRIMARY KEY (date) ); """
+	sqlCreateTable = """ CREATE TABLE IF NOT EXISTS userData (date text NOT NULL, RHR real, SLEEP real, STRESS real, ATL real, CTL real, TSS real, PRIMARY KEY (date) ); """
 	cursor = connection.cursor()
 	cursor.execute(sqlCreateTable)
 	return connection
@@ -131,15 +131,17 @@ def pullDates(files, DOW):
 def buildDB(connection, dates, data, column):
 	cursor = connection.cursor()
 
+	sqlTest = '''SELECT date FROM userData WHERE date = ?''' 
+	sqlUpd = '''UPDATE userData SET %s = ? WHERE date = ?''' % column
+	sqlIns = '''INSERT INTO userData(date, %s) VALUES(?, ?)''' % column
+
+
 	for ii in range(0,len(dates)):
-		sql = '''SELECT date FROM userData WHERE date = ?''' 
-		cursor.execute(sql, (dates[ii],))
+		cursor.execute(sqlTest, (dates[ii],))
 		if cursor.fetchone():
-			sql = '''UPDATE userData SET %s = ? WHERE date = ?''' % column
-			cursor.execute(sql, (data[ii], dates[ii]))
+			cursor.execute(sqlUpd, (data[ii], dates[ii]))
 		else:
-			sql = '''INSERT INTO userData(date, %s) VALUES(?, ?)''' % column
-			cursor.execute(sql, (dates[ii], data[ii]))
+			cursor.execute(sqlIns, (dates[ii], data[ii]))
 	#sql = '''SELECT * FROM userData ORDER BY date ASC;'''
 	#cursor.execute(sql)
 	connection.commit()
@@ -152,7 +154,7 @@ def moveReports():
 	if path.isdir(archiveLocation):
 		for file in fileList:
 			if (re.match("RHR_\d{8}_\d{8}.csv", file) or re.match("SLEEP_\d{8}_\d{8}.csv", file) or re.match("STRESS_\d{8}_\d{8}.csv", file)):
-				print file
+				print(file)
 				rename(file, archiveLocation + file)
 
 
@@ -160,7 +162,7 @@ def moveReports():
 connection = initializeUserData()
 rhrFiles, sleepFiles, stressFiles = getFileList()
 dataRHR, datesRHR = parseRHR(rhrFiles)
-print len(dataRHR) , len(datesRHR)
+print(len(dataRHR) , len(datesRHR))
 dataSleep, datesSleep = parseSleep(sleepFiles)
 dataStress, datesStress = parseStress(stressFiles)
 buildDB(connection, datesRHR, dataRHR, 'RHR')

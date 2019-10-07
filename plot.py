@@ -28,11 +28,13 @@ def plotRHR(data):
 	RHR = [l[1] for l in data]
 	Stress = [l[3] for l in data]
 	Sleep = [l[2] for l in data]
+	ATL = [l[4] for l in data]
+	CTL = [l[5] for l in data]
 
 
 	endIndex = len(dates) 
-	if endIndex > 30:
-		startIndex = endIndex - 30
+	if endIndex > 120:
+		startIndex = endIndex - 120
 	else:
 		startIndex = 0
 
@@ -80,6 +82,9 @@ def plotRHR(data):
 	plt.ylabel(r'\textbf{RHR}')
 	plt.title(r'\textbf{Resting Heart Rate}')
 
+	fig = plt.figure()
+	plt.plot(dates[startIndex:endIndex], ATL[startIndex:endIndex])
+	plt.plot(dates[startIndex:endIndex], CTL[startIndex:endIndex])
 	plt.show(block=False)
 	raw_input()
 	plt.close() 
