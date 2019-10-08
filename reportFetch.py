@@ -50,12 +50,12 @@ def downloadReport(browser):
 		EC.presence_of_element_located((By.XPATH, dateXpath)))
 	dateRange = str(dateElement.text)
 
-	exportButton = WebDriverWait(browser, 5.0).until(
+	exportButton = WebDriverWait(browser, waitTime).until(
 		EC.element_to_be_clickable((By.XPATH, exportXpath))
 	)
 	if exportButton:
 		exportButton.click()
-	#browser.find_element_by_xpath(exportXpath).click()
+
 	return dateRange
 
 
@@ -176,7 +176,7 @@ def browserInit(downloadDir):
 
 	#Setup browser as headless
 	opts = Options()
-	opts.headless = False
+	opts.headless = True
 
 	# Instantiate a Firefox browser object with the above-specified profile settings
 	print("Browser preferences configured")
@@ -300,7 +300,7 @@ def main():
 			dateRangeRHR = downloadReport(browser)
 			RHRReport = renameReport(dateRangeRHR, 'RHR')
 			print("RHR Download Success! %s" % RHRReport)
-			downloadFlag = setDownloadFlag(desiredDate, dateRangeRHR)
+			downloadFlag = setDownloadFlag(desiredDateRHR, dateRangeRHR)
 			if downloadFlag:
 				clickArrow(browser)
 		except:
@@ -317,10 +317,10 @@ def main():
 			dateRangeStress = downloadReport(browser)
 			stressReport = renameReport(dateRangeStress, 'STRESS')
 			print("Stress Download Success! %s" % stressReport)
-			downloadFlag = setDownloadFlag(desiredDate, dateRangeStress)
+			downloadFlag = setDownloadFlag(desiredDateStress, dateRangeStress)
 			if downloadFlag:
 				clickArrow(browser)
-		except ValueError:
+		except:
 			print("Error Fetching Stress Data...")
 			clickArrow(browser)
 
@@ -335,16 +335,16 @@ def main():
 			dateRangeSleep = downloadReport(browser)
 			sleepReport = renameReport(dateRangeSleep, 'SLEEP')
 			print("Sleep Download Success! %s" % sleepReport)
-			downloadFlag = setDownloadFlag(desiredDate, dateRangeSleep)
+			downloadFlag = setDownloadFlag(desiredDateSleep, dateRangeSleep)
 			if downloadFlag:
 				clickArrow(browser)
 		except:
 			print("Error Fetching Sleep Data...")
 			clickArrow(browser)
 
-	downloadFlag = 1
-	downloadActivity(browser)
-	browser.quit()
+	if (desiredDateRHR or desiredDateStress or desiredDateSleep):
+		downloadActivity(browser)
+		browser.quit()
 
 
 
