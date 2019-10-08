@@ -68,7 +68,6 @@ def plotRHR(data):
 	currentAxis = plt.gca()
 	currentAxis.plot(x, pdf)
 	plt.hist(histRHR,density=1, bins = nbins)
-	plt.legend(loc=2)
 	plt.title(r'\textbf{RHR Histogram and PDF}')
 	plt.ylim((0,max(pdf)*1.5))
 
@@ -85,9 +84,7 @@ def plotRHR(data):
 	fig = plt.figure()
 	plt.plot(dates[startIndex:endIndex], ATL[startIndex:endIndex])
 	plt.plot(dates[startIndex:endIndex], CTL[startIndex:endIndex])
-	plt.show(block=False)
-	input()
-	plt.close() 
+	plt.show(block=True)
 
 
 
