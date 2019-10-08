@@ -56,7 +56,7 @@ def plotRHR(data):
 	plt.ylabel(r'\textbf{Stress}')
 	plt.title(r'\textbf{Stress}')
 
-	histRHR = filter(None, RHR)
+	histRHR = list(filter(None, RHR))
 
 	iqr = np.subtract(*np.percentile(histRHR, [75, 25])) # interquartile range
 	nbins = int((max(histRHR)-min(histRHR))/(2.0*iqr/(len(histRHR)**(1.0/3.0)))) #Freedman-Diaconis rule for number of bins in histogram
@@ -86,7 +86,7 @@ def plotRHR(data):
 	plt.plot(dates[startIndex:endIndex], ATL[startIndex:endIndex])
 	plt.plot(dates[startIndex:endIndex], CTL[startIndex:endIndex])
 	plt.show(block=False)
-	raw_input()
+	input()
 	plt.close() 
 
 
