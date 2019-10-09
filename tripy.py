@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
+from haversine import haversine
 
 from os import listdir, mkdir, path
 from subprocess import call
@@ -32,6 +33,9 @@ def parseFile(fileName):
 	# Initialize lists
 	HR = [] 
 	t = []
+	lat = []
+	lon = []
+	elev = []
 	for line in data: #Parse the date of the activity first
 		if line.find("<time>") != -1:
 			date = line[10:29]
@@ -54,9 +58,30 @@ def parseFile(fileName):
 				stopHR = line.find("</ns3:hr>")
 				HR.append(float(line[startHR+8:stopHR])) # Extract only HR number. 8 is the length of the HR tag. <ns3:hr>
 				secCheck = 0
+		elif line.find("<trkpt") != -1:
+			startLat = line.find("lat")
+			startLon = line.find("lon")
+			lat.append(float(line[startLat+5:startLon-2]))
+			lon.append(float(line[startLon+5:-3]))
+		elif line.find("<ele>") != -1:
+			startElev = line.find("<ele>")
+			endElev = line.find("</ele>")
+			elev.append(float(line[startElev+5:endElev]))
 	t[:] = [abs(i - t[0] + 86400) % 86400 for i in t]
+	dist = calcDist(lat, lon)
+	elevGain = [max(0, elev[i+1] - elev[i]) for i in np.arange(len(elev) - 1)]
+	totElevGain = np.sum(elevGain)*3.28084 #in feet
 	#t.pop(0) #Delete first element of time which corresponds to activity start time. 
-	return(HR,t, date)
+	return(HR, t, dist, totElevGain, date)
+
+
+def calcDist(lat, lon):
+	if len(lat) != len(lon):
+		raise ValueError("Latitude and Longitude arrays must have same length.")
+	dist = 0.
+	for i in np.arange(len(lat)-1):
+		dist += haversine((lat[i+1], lon[i+1]), (lat[i], lon[i]), unit='mi') #Haversine formula for great circle distance
+	return dist
 
 
 def getZones():
@@ -340,7 +365,7 @@ newFiles = getFileList()
 if newFiles:
 	for fileName in newFiles:
 		print(fileName)
-		HR, t, date = parseFile(fileName)
+		HR, t, dist, elev, date = parseFile(fileName)
 		zones, HRR, RHR = getZones()
 		tInZones = getTimeInZones(HR, t, zones)
 		trimp = calcTrimp(HR, t, HRR, RHR)
