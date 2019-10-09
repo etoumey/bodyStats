@@ -30,6 +30,9 @@ def plotRHR(data):
 	Sleep = [l[2] for l in data]
 	ATL = [l[4] for l in data]
 	CTL = [l[5] for l in data]
+	Dist = [l[7] for l in data]
+	Elev = [l[8] for l in data]
+	ElapsedTime = [l[9] for l in data]
 
 
 	endIndex = len(dates) 
