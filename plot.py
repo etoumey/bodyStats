@@ -32,7 +32,7 @@ def plotRHR(data):
 	CTL = [l[5] for l in data]
 	Dist = [l[7] for l in data]
 	Elev = [l[8] for l in data]
-	ElapsedTime = [l[9] for l in data]
+	tTot = [l[9] for l in data]
 
 
 	endIndex = len(dates) 
