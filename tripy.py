@@ -277,7 +277,6 @@ def printPMCMode():
 	plt.ylabel(r'\textbf{Training Load}')
 	plt.title(r'\textbf{Performance Manager Chart}')
 	plt.show(block=False)
-	input()
 	plt.savefig('activityArchive/src/PMC.pdf')
 	plt.close()
 
