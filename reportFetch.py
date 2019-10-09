@@ -5,10 +5,19 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from os import getcwd,remove, listdir, rename
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 import time
 import argparse
 import getpass
+import sqlite3
+
+def initializeUserData():
+	connection = sqlite3.connect('userData.db')
+	sqlCreateTable = """ CREATE TABLE IF NOT EXISTS userData (date text NOT NULL, RHR real, SLEEP real, STRESS real, ATL real, CTL real, TSS real, PRIMARY KEY (date) ); """
+	cursor = connection.cursor()
+	cursor.execute(sqlCreateTable)
+	return connection
+
 
 def queryCredentials():
 	#This function loads credentials from the specified file. May be replaced with a user prompt not in development
@@ -41,12 +50,12 @@ def downloadReport(browser):
 		EC.presence_of_element_located((By.XPATH, dateXpath)))
 	dateRange = str(dateElement.text)
 
-	exportButton = WebDriverWait(browser, 5.0).until(
+	exportButton = WebDriverWait(browser, waitTime).until(
 		EC.element_to_be_clickable((By.XPATH, exportXpath))
 	)
 	if exportButton:
 		exportButton.click()
-	#browser.find_element_by_xpath(exportXpath).click()
+
 	return dateRange
 
 
@@ -77,7 +86,7 @@ def downloadActivity(browser):
 
 	browser.find_element_by_xpath(activityXpath).click()
 
-	for i in range(1,10):
+	for i in range(1,1):
 		WebDriverWait(browser, waitTime).until(
 			EC.element_to_be_clickable((By.XPATH, gearXpath))
 			)
@@ -247,68 +256,95 @@ def setDownloadFlag(desiredDate, dateRange):
 	return downloadFlag
 
 
+def getDesiredDate(connection, reportType):
+	cursor = connection.cursor()
+	dateFormat = "%Y-%m-%d %H:%M:%S"
+	# Find the oldest NULL value of the given report type
+	sql = '''SELECT * FROM userData WHERE %s IS NOT NULL ORDER BY date DESC''' % reportType
+	desiredDate = cursor.execute(sql).fetchone()
+	
+	# Take the day before the first non-null day
+	if desiredDate:
+		desiredDate = datetime.strptime(desiredDate[0], dateFormat)
+		if ((datetime.now() - desiredDate).days < 1):
+			# Make it a zero so we can just skip-a-dip the report
+			desiredDate = 0
+	else:
+		# If you are here, there are ONLY NULL values. Maybe you just got a new garmin
+		desiredDate = datetime.now()
+
+	return desiredDate
+
+
 def main():
-	desiredDate = datetime(2015, 12, 25)
+	# Initialize everything
+	connection = initializeUserData()
 	downloadFlag = 0
 
-	downloadDir = getcwd()
-	# Head to garmin connect login page
-	browser = browserInit(downloadDir)
+	desiredDateRHR = getDesiredDate(connection, 'RHR')
+	desiredDateStress = getDesiredDate(connection, 'STRESS')
+	desiredDateSleep = getDesiredDate(connection, 'SLEEP')
 
-	login(browser)
+	if (desiredDateRHR or desiredDateStress or desiredDateSleep):
+		downloadDir = getcwd()
+		# Head to garmin connect login page
+		browser = browserInit(downloadDir)
+		login(browser)
 
-	if downloadFlag:
+	if desiredDateRHR:
 		browser.get('https://connect.garmin.com/modern/report/60/wellness/last_seven_days') #RHR report
+		downloadFlag = 1
 
 	while downloadFlag:
 		try:
 			dateRangeRHR = downloadReport(browser)
 			RHRReport = renameReport(dateRangeRHR, 'RHR')
 			print("RHR Download Success! %s" % RHRReport)
-			downloadFlag = setDownloadFlag(desiredDate, dateRangeRHR)
+			downloadFlag = setDownloadFlag(desiredDateRHR, dateRangeRHR)
 			if downloadFlag:
 				clickArrow(browser)
 		except:
 			print("Error fetching RHR Data...")
 			clickArrow(browser)
 
-	downloadFlag = 0
-	if downloadFlag:
+
+	if desiredDateStress:
 		browser.get('https://connect.garmin.com/modern/report/63/wellness/last_seven_days') #Stress report
-		desiredDate = datetime(2015, 12, 25)
+		downloadFlag = 1
 
 	while downloadFlag:
 		try:
 			dateRangeStress = downloadReport(browser)
 			stressReport = renameReport(dateRangeStress, 'STRESS')
 			print("Stress Download Success! %s" % stressReport)
-			downloadFlag = setDownloadFlag(desiredDate, dateRangeStress)
+			downloadFlag = setDownloadFlag(desiredDateStress, dateRangeStress)
 			if downloadFlag:
 				clickArrow(browser)
-		except ValueError:
+		except:
 			print("Error Fetching Stress Data...")
 			clickArrow(browser)
 
-	downloadFlag = 1
-	if downloadFlag:
+	
+
+	if desiredDateSleep:
 		browser.get('https://connect.garmin.com/modern/report/26/wellness/last_seven_days') #Sleep report
-		desiredDate = datetime(2019, 5, 1)
+		downloadFlag = 1
 
 	while downloadFlag:
 		try:
 			dateRangeSleep = downloadReport(browser)
 			sleepReport = renameReport(dateRangeSleep, 'SLEEP')
 			print("Sleep Download Success! %s" % sleepReport)
-			downloadFlag = setDownloadFlag(desiredDate, dateRangeSleep)
+			downloadFlag = setDownloadFlag(desiredDateSleep, dateRangeSleep)
 			if downloadFlag:
 				clickArrow(browser)
 		except:
 			print("Error Fetching Sleep Data...")
 			clickArrow(browser)
 
-	downloadFlag = 1
-	downloadActivity(browser)
-	browser.quit()
+	if (desiredDateRHR or desiredDateStress or desiredDateSleep):
+		downloadActivity(browser)
+		browser.quit()
 
 
 
