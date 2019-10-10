@@ -88,16 +88,17 @@ def plotRHR(data):
 	ax1.bar(dates[startIndex:endIndex], TSS[startIndex:endIndex], color='0.785', label='TSS')
 	plt.ylabel(r'\textbf{TSS}')
 	ax2 = ax1.twinx()
-	ax2.plot(dates[startIndex:endIndex], np.subtract(ATL[startIndex:endIndex], CTL[startIndex:endIndex]), label=r'\textbf{TSB}')#, color='g')
-	ax2.plot(dates[startIndex:endIndex], ATL[startIndex:endIndex], label=r'\textbf{ATL}')#, color='c')
-	ax2.plot(dates[startIndex:endIndex], CTL[startIndex:endIndex], label=r'\textbf{CTL}')#, color='m')
+	ax2.plot(dates[startIndex:endIndex], np.subtract(ATL[startIndex:endIndex], CTL[startIndex:endIndex]), label=r'\textbf{TSB}')
+	ax2.plot(dates[startIndex:endIndex], ATL[startIndex:endIndex], label=r'\textbf{ATL}')
+	ax2.plot(dates[startIndex:endIndex], CTL[startIndex:endIndex], label=r'\textbf{CTL}')
 	plt.grid()
 	plt.xlabel(r'\textbf{Time}')
 	plt.ylabel(r'\textbf{Training Load}')
 	plt.title(r'\textbf{Performance Manager Chart}')
 	plt.legend(loc=2)
-	plt.show(block=True)
 	plt.savefig('activityArchive/src/PMC.pdf')
+	plt.show(block=True)
+	
 
 
 
