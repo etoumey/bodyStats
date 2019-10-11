@@ -142,6 +142,8 @@ class Plotter:
             plot_quantity = np.append(np.zeros((num_days)), plot_quantity)
         cumulative_quantity = np.cumsum(plot_quantity)
         plot_days = np.arange(1, 366)
+        if (year % 4) == 0: #add "half-day" on Feb 29 for leap year
+            plot_days = np.insert(plot_days.astype(float), 59, 59.5)
         if datetime.today().year == year:
             current_days_into_year = (datetime.today().date() -\
                                       datetime(year, 1, 1).date()).days
@@ -236,6 +238,8 @@ class Plotter:
             num_days = (year_dates[0] - datetime(year, 1, 1)).days
             plot_quantity = np.append(np.zeros((num_days)), plot_quantity)
         plot_days = np.arange(1, 366)
+        if (year % 4) == 0: #add "half-day" on Feb 29 for leap year
+            plot_days = np.insert(plot_days.astype(float), 59, 59.5)
         if datetime.today().year == year:
             current_days_into_year = (datetime.today().date() -\
                                       datetime(year, 1, 1).date()).days
