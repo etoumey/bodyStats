@@ -45,7 +45,7 @@ def downloadReport(browser):
 	dateXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[2]'
 
 	# Inside reports window, switch to default frame
-	browser.switch_to_default_content()
+	browser.switch_to.default_content()
 	dateElement = WebDriverWait(browser, waitTime).until(
 		EC.presence_of_element_located((By.XPATH, dateXpath)))
 	dateRange = str(dateElement.text)
@@ -72,7 +72,7 @@ def downloadActivity(browser):
 
 	#Wait for the annoying element to become presenttop
 
-	browser.switch_to_default_content()
+	browser.switch_to.default_content()
 	WebDriverWait(browser, waitTime).until(
 		EC.presence_of_element_located((By.XPATH, preloaderXpath))
 		)
@@ -214,7 +214,7 @@ def login(browser):
 		passwordField.submit()
 		print("Login Success")
 		# Wait for login confirmation
-		browser.switch_to_default_content()
+		browser.switch_to.default_content()
 		element = WebDriverWait(browser, 20).until(
 			EC.element_to_be_clickable((By.XPATH, '/html/body/div/div[3]/header/div[1]/div'))
 		)
@@ -228,7 +228,7 @@ def clickArrow(browser):
 	dateXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[2]'
 	waitTime = 20
 
-	browser.switch_to_default_content()
+	browser.switch_to.default_content()
 	dateElement = WebDriverWait(browser, waitTime).until(
 		EC.presence_of_element_located((By.XPATH, dateXpath)))
 	#dateElement = browser.find_element_by_xpath(dateXpath)
