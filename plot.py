@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 from matplotlib.dates import DateFormatter
 from datetime import datetime, timedelta
 from scipy.stats import gaussian_kde
+from pandas.plotting import register_matplotlib_converters
+register_matplotlib_converters()
+
 
 def queryDB():
 	#dateFormatDB = "%Y-%m-%d 00:00:00"
@@ -107,8 +110,7 @@ class Plotter:
         plt.show(block=False)
 
 
-    def plotCumulativeActivityYear(self, quantity='distance', year=2019,\
-                                      annotate=True, show=True, ax=None, save_file=None):
+    def plotCumulativeActivityYear(self, quantity='distance', year=2019, annotate=True, show=True, ax=None, saveFile=None):
         """
         Plot cumulative activity quantity as a function of days since Jan 1 for a
         given year.
@@ -120,7 +122,7 @@ class Plotter:
         show: Whether or not to show plot. Set to False if plotting
               more data over top
         ax: matplotlib axis object to plot data onto
-        save_file: Location for plot to be saved. If None, plot is not saved.
+        saveFile: Location for plot to be saved. If None, plot is not saved.
         """
         if quantity == 'distance':
             quantityArr = self.dist
@@ -134,43 +136,43 @@ class Plotter:
 
         if ax == None:
             fig, ax = plt.subplots()
-        year_filter = [date.year == year for date in self.dates]
+        yearFilter = [date.year == year for date in self.dates]
 
 
-        if not any(year_filter):
+        if not any(yearFilter):
             raise ValueError('No activities were found for %i' % year)
 
-        year_dates = self.dates[year_filter]
-        year_filtered_quantity = quantityArr[year_filter]
-        plot_quantity = np.where(year_filtered_quantity==None, 0., year_filtered_quantity)
+        yearDates = self.dates[yearFilter]
+        yearFilteredQuantity = quantityArr[yearFilter]
+        plotQuantity = np.where(yearFilteredQuantity==None, 0., yearFilteredQuantity)
 
 
-        if year_dates[0] != datetime(year, 1, 1):
-            num_days = (year_dates[0] - datetime(year, 1, 1)).days
-            plot_quantity = np.append(np.zeros((num_days)), plot_quantity)
+        if yearDates[0] != datetime(year, 1, 1):
+            numDays = (yearDates[0] - datetime(year, 1, 1)).days
+            plotQuantity = np.append(np.zeros((numDays)), plotQuantity)
 
-        cumulative_quantity = np.cumsum(plot_quantity)
-        plot_days = np.arange(1, 366)
+        cumulativeQuantity = np.cumsum(plotQuantity)
+        plotDays = np.arange(1, 366)
 
 
         if (year % 4) == 0: #add "half-day" on Feb 29 for leap year
-            plot_days = np.insert(plot_days.astype(float), 59, 59.5)
+            plotDays = np.insert(plotDays.astype(float), 59, 59.5)
 
-        if year_dates[-1] != datetime(year, 12, 31):
-            currentDOY = (year_dates[-1] - datetime(year, 1, 1)).days
-            plot_days = plot_days[:currentDOY+1]
-            cumulative_quantity = cumulative_quantity[:currentDOY+1]
+        if yearDates[-1] != datetime(year, 12, 31):
+            currentDOY = (yearDates[-1] - datetime(year, 1, 1)).days
+            plotDays = plotDays[:currentDOY+1]
+            cumulativeQuantity = cumulativeQuantity[:currentDOY+1]
 
-        plt.plot(plot_days, cumulative_quantity, label=str(year))
+        plt.plot(plotDays, cumulativeQuantity, label=str(year))
 
         if annotate:
             for month in np.arange(1, 13):
-                day_to_plot = (datetime(year,month,1)-datetime(year,1,1)).days
-                plt.axvline(day_to_plot, c='black', linestyle=':', linewidth=1, alpha=0.5)
-                plt.text(day_to_plot + 10, 1.12*max(cumulative_quantity), datetime(year,month,1).strftime('%b'))
+                dayToPlot = (datetime(year,month,1)-datetime(year,1,1)).days
+                plt.axvline(dayToPlot, c='black', linestyle=':', linewidth=1, alpha=0.5)
+                plt.text(dayToPlot + 10, 1.12*max(cumulativeQuantity), datetime(year,month,1).strftime('%b'))
 
             plt.xlim(1, 365)
-            plt.ylim(0, 1.1*max(cumulative_quantity))
+            plt.ylim(0, 1.1*max(cumulativeQuantity))
             plt.minorticks_on()
             ax.tick_params(which='both', direction='in', right=True)
             plt.xlabel('Days into year')
@@ -184,38 +186,38 @@ class Plotter:
             
             plt.legend(loc=4)
         
-        if save_file != None:
-            plt.savefig(save_file)
+        if saveFile != None:
+            plt.savefig(saveFile)
         if show:
             plt.show()
 
 
-    def plotCumulativeActivity(self, quantity='distance', ax=None, save_file=None):
+    def plotCumulativeActivity(self, quantity='distance', ax=None, saveFile=None):
         """
         Plots cumulative activity quantity for all years up to present day.
 
         quantity: Activity quantity to plot. Must be either 'distance', 'time',
                   or 'elev'
         ax: Matplotlib object to plot data onto
-        save_file: Location for plot to be saved. If None, plot is not saved.
+        saveFile: Location for plot to be saved. If None, plot is not saved.
         """
         if ax == None:
             fig, ax = plt.subplots()
 
-        start_year = min([date.year for date in self.dates])
+        startYear = min([date.year for date in self.dates])
 
-        for year in np.arange(start_year, datetime.today().year+1):
+        for year in np.arange(startYear, datetime.today().year+1):
             
             if year != datetime.today().year:
                 self.plotCumulativeActivityYear(quantity=quantity, year=year, annotate=False, show=False, ax=ax)
             else:
-                if save_file != None:
-                    self.plotCumulativeActivityYear(quantity=quantity, year=year, annotate=True, show=True, ax=ax, save_file=save_file)
+                if saveFile != None:
+                    self.plotCumulativeActivityYear(quantity=quantity, year=year, annotate=True, show=True, ax=ax, saveFile=saveFile)
                 else:
                     self.plotCumulativeActivityYear(quantity=quantity, year=year, annotate=True, show=True, ax=ax)
 
 
-    def plotActivityYear(self, quantity='distance', year=2019, annotate=True, show=True, ax=None, save_file=None):
+    def plotActivityYear(self, quantity='distance', year=2019, annotate=True, show=True, ax=None, saveFile=None):
         """
         Plot activity quantity per day as a function of days since Jan 1 for a
         given year.
@@ -228,7 +230,7 @@ class Plotter:
         show: Whether or not to show plot. Set to False if plotting
               more data over top
         ax: Matplotlib axis object to plot data onto
-        save_file: Location for plot to be saved. If None, plot is not saved.
+        saveFile: Location for plot to be saved. If None, plot is not saved.
         """
         if quantity == 'distance':
             quantityArr = self.dist
@@ -242,39 +244,39 @@ class Plotter:
         if ax == None:
             fig, ax = plt.subplots()
 
-        year_filter = [date.year == year for date in self.dates]
+        yearFilter = [date.year == year for date in self.dates]
         
-        if not any(year_filter):
+        if not any(yearFilter):
             raise ValueError('No activities were found for %i' % year)
         
-        year_dates = self.dates[year_filter]
-        year_filtered_quantity = quantityArr[year_filter]
-        plot_quantity = np.where(year_filtered_quantity==None, 0., year_filtered_quantity)
+        yearDates = self.dates[yearFilter]
+        yearFilteredQuantity = quantityArr[yearFilter]
+        plotQuantity = np.where(yearFilteredQuantity==None, 0., yearFilteredQuantity)
         
-        if year_dates[0] != datetime(year, 1, 1):
-            num_days = (year_dates[0] - datetime(year, 1, 1)).days
-            plot_quantity = np.append(np.zeros((num_days)), plot_quantity)
+        if yearDates[0] != datetime(year, 1, 1):
+            numDays = (yearDates[0] - datetime(year, 1, 1)).days
+            plotQuantity = np.append(np.zeros((numDays)), plotQuantity)
         
-        plot_days = np.arange(1, 366)
+        plotDays = np.arange(1, 366)
         
         if (year % 4) == 0: #add "half-day" on Feb 29 for leap year
-            plot_days = np.insert(plot_days.astype(float), 59, 59.5)
+            plotDays = np.insert(plotDays.astype(float), 59, 59.5)
         
-        if year_dates[-1] != datetime(year, 12, 31):
-            currentDOY = (year_dates[-1] - datetime(year, 1, 1)).days
-            plot_days = plot_days[:currentDOY+1]
-            plot_quantity = plot_quantity[:currentDOY+1]
+        if yearDates[-1] != datetime(year, 12, 31):
+            currentDOY = (yearDates[-1] - datetime(year, 1, 1)).days
+            plotDays = plotDays[:currentDOY+1]
+            plotQuantity = plotQuantity[:currentDOY+1]
         
-        plt.plot(plot_days, plot_quantity, label=str(year))
+        plt.plot(plotDays, plotQuantity, label=str(year))
         
         if annotate:
             for month in np.arange(1, 13):
-                day_to_plot = (datetime(year,month,1)-datetime(year,1,1)).days
-                plt.axvline(day_to_plot, c='black', linestyle=':', linewidth=1, alpha=0.5)
-                plt.text(day_to_plot + 10, 1.12*max(plot_quantity), datetime(year,month,1).strftime('%b'))
+                dayToPlot = (datetime(year,month,1)-datetime(year,1,1)).days
+                plt.axvline(dayToPlot, c='black', linestyle=':', linewidth=1, alpha=0.5)
+                plt.text(dayToPlot + 10, 1.12*max(plotQuantity), datetime(year,month,1).strftime('%b'))
 
             plt.xlim(1, 365)
-            plt.ylim(0, 1.1*max(plot_quantity))
+            plt.ylim(0, 1.1*max(plotQuantity))
             plt.minorticks_on()
             ax.tick_params(which='both', direction='in', right=True)
             plt.xlabel('Days into year')
@@ -288,38 +290,38 @@ class Plotter:
 
             plt.legend(loc=4)
         
-        if save_file != None:
-            plt.savefig(save_file)
+        if saveFile != None:
+            plt.savefig(saveFile)
         if show:
             plt.show()
 
 
-    def plotActivity(self, quantity='distance', ax=None, save_file=None):
+    def plotActivity(self, quantity='distance', ax=None, saveFile=None):
         """
         Plots activity quantity per day for all years up to present day.
 
         quantity: Activity quantity to plot. Must be either 'distance', 'time',
                   or 'elev'
         ax: Matplotlib object to plot data onto
-        save_file: Location for plot to be saved. If None, plot is not saved.
+        saveFile: Location for plot to be saved. If None, plot is not saved.
         """
         if ax == None:
             fig, ax = plt.subplots()
-        start_year = min([date.year for date in self.dates])
-        for year in np.arange(start_year, datetime.today().year+1):
+        startYear = min([date.year for date in self.dates])
+        for year in np.arange(startYear, datetime.today().year+1):
             if year != datetime.today().year:
                     self.plotActivityYear(quantity=quantity, year=year, annotate=False, show=False, ax=ax)
             else:
-                if save_file != None:
-                    self.plotActivityYear(quantity=quantity, year=year, annotate=True, show=True, ax=ax, save_file=save_file)
+                if saveFile != None:
+                    self.plotActivityYear(quantity=quantity, year=year, annotate=True, show=True, ax=ax, saveFile=saveFile)
                 else:
                     self.plotActivityYear(quantity=quantity, year=year, annotate=True, show=True, ax=ax)
 
 
 plotter = Plotter()
 fig, ax = plt.subplots(figsize=(10,5))
-plotter.plotCumulativeActivity(quantity='elev', ax=ax)
+#plotter.plotCumulativeActivity(quantity='elev', ax=ax)
 fig, ax = plt.subplots(figsize=(10,5))
-plotter.plotActivity(quantity='elev', ax=ax)
+#plotter.plotActivity(quantity='elev', ax=ax)
 plotter.plotRHR()
 
