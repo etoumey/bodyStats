@@ -107,7 +107,7 @@ class Plotter:
         plt.title(r'\textbf{Performance Manager Chart}')
         plt.legend(loc=2)
         plt.savefig('activityArchive/src/PMC.pdf')
-        plt.show(block=False)
+        plt.show()
 
 
     def plotCumulativeActivityYear(self, quantity='distance', year=2019, annotate=True, show=True, ax=None, saveFile=None):
