@@ -24,3 +24,4 @@ test_diff.txt
 *.pdf
 *.aux
 *.db
+processLog
