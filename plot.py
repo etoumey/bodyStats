@@ -10,7 +10,6 @@ register_matplotlib_converters()
 
 
 def queryDB():
-	#dateFormatDB = "%Y-%m-%d 00:00:00"
     connection = sqlite3.connect('userData.db')
     cursor = connection.cursor()
     sql = '''SELECT * from userData ORDER BY date ASC;'''
@@ -320,7 +319,7 @@ class Plotter:
 
 plotter = Plotter()
 fig, ax = plt.subplots(figsize=(10,5))
-#plotter.plotCumulativeActivity(quantity='elev', ax=ax)
+plotter.plotCumulativeActivity(quantity='elev', ax=ax)
 fig, ax = plt.subplots(figsize=(10,5))
 #plotter.plotActivity(quantity='elev', ax=ax)
 plotter.plotRHR()
