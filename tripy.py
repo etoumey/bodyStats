@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
+from haversine import haversine
 
 from os import listdir, mkdir, path
 from subprocess import call
@@ -32,6 +33,9 @@ def parseFile(fileName):
 	# Initialize lists
 	HR = [] 
 	t = []
+	lat = []
+	lon = []
+	elev = []
 	for line in data: #Parse the date of the activity first
 		if line.find("<time>") != -1:
 			date = line[10:29]
@@ -54,9 +58,31 @@ def parseFile(fileName):
 				stopHR = line.find("</ns3:hr>")
 				HR.append(float(line[startHR+8:stopHR])) # Extract only HR number. 8 is the length of the HR tag. <ns3:hr>
 				secCheck = 0
+		elif line.find("<trkpt") != -1:
+			startLat = line.find("lat")
+			startLon = line.find("lon")
+			lat.append(float(line[startLat+5:startLon-2]))
+			lon.append(float(line[startLon+5:-3]))
+		elif line.find("<ele>") != -1:
+			startElev = line.find("<ele>")
+			endElev = line.find("</ele>")
+			elev.append(float(line[startElev+5:endElev]))
 	t[:] = [abs(i - t[0] + 86400) % 86400 for i in t]
+	elapsedTime = t[-1] - t[0]
+	dist = calcDist(lat, lon)
+	elevGain = [max(0, elev[i+1] - elev[i]) for i in np.arange(len(elev) - 1)]
+	totElevGain = np.sum(elevGain)*3.28084 #in feet
 	#t.pop(0) #Delete first element of time which corresponds to activity start time. 
-	return(HR,t, date)
+	return(HR, t, dist, elapsedTime, totElevGain, date)
+
+
+def calcDist(lat, lon):
+	if len(lat) != len(lon):
+		raise ValueError("Latitude and Longitude arrays must have same length.")
+	dist = 0.
+	for i in np.arange(len(lat)-1):
+		dist += haversine((lat[i+1], lon[i+1]), (lat[i], lon[i]), unit='mi') #Haversine formula for great circle distance
+	return dist
 
 
 def getZones():
@@ -117,6 +143,54 @@ def addTrimpToDB(trimp, date, connection): # Need to add support for non existen
 	else:
 		sql = '''INSERT INTO userData(date, TSS) VALUES(?, ?)''' 
 		cursor.execute(sql, (date, trimp))
+
+	connection.commit()
+	return
+
+def addDataToDB(dist, elev, elapsedTime, date, connection): # Need to add support for non existent PMC
+	cursor = connection.cursor()
+	sql = '''ALTER TABLE userData ADD COLUMN DIST;'''
+	
+	try:
+		cursor.execute(sql)
+	except:
+		pass
+
+	sql = '''ALTER TABLE userData ADD COLUMN ELEV;'''
+	
+	try:
+		cursor.execute(sql)
+	except:
+		pass
+
+	sql = '''ALTER TABLE userData ADD COLUMN ELAPSEDTIME;'''
+	
+	try:
+		cursor.execute(sql)
+	except:
+		pass
+
+	#First add all days since your last activity 
+	strDateFormat = "%Y-%m-%dT%H:%M:%S" #Just to extract the date from the string which includes the T, no T after this
+	dateFormatDB = "%Y-%m-%d 00:00:00" #This is the format that is in the dataBase
+	date = datetime.strptime(date, strDateFormat).strftime(dateFormatDB)
+
+	sql = '''SELECT date FROM userData WHERE date = ?''' 
+	cursor.execute(sql, (date,))
+	if cursor.fetchone():
+		sql = '''UPDATE userData SET DIST = ? WHERE date = ?''' 
+		cursor.execute(sql, (dist, date))
+		sql = '''UPDATE userData SET ELEV = ? WHERE date = ?''' 
+		cursor.execute(sql, (elev, date))
+		sql = '''UPDATE userData SET ELAPSEDTIME = ? WHERE date = ?''' 
+		cursor.execute(sql, (elapsedTime, date))
+	else:
+		sql = '''INSERT INTO userData(date, DIST) VALUES(?, ?)''' 
+		cursor.execute(sql, (date, dist))
+		sql = '''INSERT INTO userData(date, ELEV) VALUES(?, ?)''' 
+		cursor.execute(sql, (date, elev))
+		sql = '''INSERT INTO userData(date, ELAPSEDTIME) VALUES(?, ?)''' 
+		cursor.execute(sql, (date, elapsedTime))
 
 	connection.commit()
 	return
@@ -339,12 +413,13 @@ newFiles = getFileList()
 if newFiles:
 	for fileName in newFiles:
 		print(fileName)
-		HR, t, date = parseFile(fileName)
+		HR, t, dist, elapsedTime, elev, date = parseFile(fileName)
 		zones, HRR, RHR = getZones()
 		tInZones = getTimeInZones(HR, t, zones)
 		trimp = calcTrimp(HR, t, HRR, RHR)
 		getNotes(date, trimp, HR)
 		addTrimpToDB(trimp, date, connection)
+		addDataToDB(dist, elev, elapsedTime, date, connection)
 		## insert propagation step here. 
 		updatePMC(date, connection)
 		generatePlot(HR, t, zones, tInZones)
