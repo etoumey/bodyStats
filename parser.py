@@ -56,7 +56,7 @@ def parseSleep(sleepFiles):
 	dateArray = []
 	DOW = []
 
-	for files in sleepFiles: 
+	for files in sleepFiles:
 		ii = 0
 		with open(files, 'r') as fh:
 			tempSleep = csv.reader(fh)
@@ -116,22 +116,22 @@ def pullDates(files, DOW):
 			today = 5
 		elif (DOW[ii] == 'Sun'):
 			today = 6
-		
+
 
 		while (today != testDate.weekday()):
-			offset = offset + 1 
+			offset = offset + 1
 			testDate = startDate + timedelta(days=offset)
 
 		dateArray.append(testDate)
 		ii = ii + 1
-			
+
 	return dateArray
 
 
 def buildDB(connection, dates, data, column):
 	cursor = connection.cursor()
 
-	sqlTest = '''SELECT date FROM userData WHERE date = ?''' 
+	sqlTest = '''SELECT date FROM userData WHERE date = ?'''
 	sqlUpd = '''UPDATE userData SET %s = ? WHERE date = ?''' % column
 	sqlIns = '''INSERT INTO userData(date, %s) VALUES(?, ?)''' % column
 
@@ -158,15 +158,19 @@ def moveReports():
 				rename(file, archiveLocation + file)
 
 
+def parser():
 
-connection = initializeUserData()
-rhrFiles, sleepFiles, stressFiles = getFileList()
-dataRHR, datesRHR = parseRHR(rhrFiles)
-print(len(dataRHR) , len(datesRHR))
-dataSleep, datesSleep = parseSleep(sleepFiles)
-dataStress, datesStress = parseStress(stressFiles)
-buildDB(connection, datesRHR, dataRHR, 'RHR')
-buildDB(connection, datesSleep, dataSleep, 'SLEEP')
-buildDB(connection, datesStress, dataStress, 'STRESS')
-connection.close()
-moveReports()
+	connection = initializeUserData()
+	rhrFiles, sleepFiles, stressFiles = getFileList()
+	dataRHR, datesRHR = parseRHR(rhrFiles)
+	print(len(dataRHR) , len(datesRHR))
+	dataSleep, datesSleep = parseSleep(sleepFiles)
+	dataStress, datesStress = parseStress(stressFiles)
+	buildDB(connection, datesRHR, dataRHR, 'RHR')
+	buildDB(connection, datesSleep, dataSleep, 'SLEEP')
+	buildDB(connection, datesStress, dataStress, 'STRESS')
+	connection.close()
+	moveReports()
+
+if __name__ == "__main__":
+	parser()
