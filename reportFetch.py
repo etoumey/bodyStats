@@ -276,7 +276,7 @@ def getDesiredDate(connection, reportType):
 	return desiredDate
 
 
-def main():
+def reportFetch():
 	# Initialize everything
 	connection = initializeUserData()
 	downloadFlag = 0
@@ -353,4 +353,4 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description = 'Fetches Resting Heart Rate (RHR), stress, and sleep reports from garmin connect up to a specified date.')
 	args = parser.parse_args()
 
-	main()
+	reportFetch()

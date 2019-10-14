@@ -1,4 +1,4 @@
-import numpy as np 
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from matplotlib.dates import DateFormatter
@@ -30,7 +30,7 @@ def parseFile(fileName):
 	data = fh.readlines()
 	fh.close
 	# Initialize lists
-	HR = [] 
+	HR = []
 	t = []
 	for line in data: #Parse the date of the activity first
 		if line.find("<time>") != -1:
@@ -42,20 +42,20 @@ def parseFile(fileName):
 		if line.find("<time>") != -1: # If a heart rate tag is found
 			startT = line.find("<time>")
 			stopT = line.find("</time>")
-			if secCheck == 0: 
+			if secCheck == 0:
 				t.append(float(line[startT+17:stopT-11])*3600+float(line[startT+20:stopT-8])*60+float(line[startT+23:stopT-5]))  #This line extracts the hours, minutes and seconds. They are all converted to seconds and appended to the time list
 				secCheck = 1
 			else:
 				t[len(t)-1] = float(line[startT+17:stopT-11])*3600+float(line[startT+20:stopT-8])*60+float(line[startT+23:stopT-5])
 				secCheck = 1
-		elif line.find("<ns3:hr>") != -1:  
+		elif line.find("<ns3:hr>") != -1:
 			if secCheck:
 				startHR = line.find("<ns3:hr>") # Find start and end to split the line
 				stopHR = line.find("</ns3:hr>")
 				HR.append(float(line[startHR+8:stopHR])) # Extract only HR number. 8 is the length of the HR tag. <ns3:hr>
 				secCheck = 0
 	t[:] = [abs(i - t[0] + 86400) % 86400 for i in t]
-	#t.pop(0) #Delete first element of time which corresponds to activity start time. 
+	#t.pop(0) #Delete first element of time which corresponds to activity start time.
 	return(HR,t, date)
 
 
@@ -98,24 +98,24 @@ def calcTrimp(HR, t, HRR, RHR):
 def addTrimpToDB(trimp, date, connection): # Need to add support for non existent PMC
 	cursor = connection.cursor()
 	sql = '''ALTER TABLE userData ADD COLUMN TSS;'''
-	
+
 	try:
 		cursor.execute(sql)
 	except:
 		pass
 
-	#First add all days since your last activity 
+	#First add all days since your last activity
 	strDateFormat = "%Y-%m-%dT%H:%M:%S" #Just to extract the date from the string which includes the T, no T after this
 	dateFormatDB = "%Y-%m-%d 00:00:00" #This is the format that is in the dataBase
 	date = datetime.strptime(date, strDateFormat).strftime(dateFormatDB)
 
-	sql = '''SELECT date FROM userData WHERE date = ?''' 
+	sql = '''SELECT date FROM userData WHERE date = ?'''
 	cursor.execute(sql, (date,))
 	if cursor.fetchone():
-		sql = '''UPDATE userData SET TSS = ? WHERE date = ?''' 
+		sql = '''UPDATE userData SET TSS = ? WHERE date = ?'''
 		cursor.execute(sql, (trimp, date))
 	else:
-		sql = '''INSERT INTO userData(date, TSS) VALUES(?, ?)''' 
+		sql = '''INSERT INTO userData(date, TSS) VALUES(?, ?)'''
 		cursor.execute(sql, (date, trimp))
 
 	connection.commit()
@@ -139,7 +139,7 @@ def updatePMC(date, connection):
 		delta = endDate - startDate
 
 		sql = '''SELECT ATL, CTL, IFNULL(TSS, 0) FROM userData WHERE date = ?;'''
-		sqlUpd = '''UPDATE userData SET ATL = ?, CTL = ? WHERE date = ?''' 
+		sqlUpd = '''UPDATE userData SET ATL = ?, CTL = ? WHERE date = ?'''
 		sqlIns = '''INSERT INTO userData(date) VALUES(?)'''
 		# to calculate today, we need to fetch yesterday first
 		try:
@@ -234,8 +234,8 @@ def printPMCMode():
 	#dates = [datetime.strptime(d, dateFormat).strftime(plotFormat) for d in dates]
 	ATL = [l[2] for l in PMC]
 	CTL = [l[3] for l in PMC]
-	
-	endIndex = len(dates) 
+
+	endIndex = len(dates)
 	if endIndex > 60:
 		startIndex = endIndex - 60
 	else:
@@ -267,7 +267,7 @@ def getFileList():
 	processLog = []
 	isNewFile = 0
 
-	with open('processLog', 'r') as fh:           
+	with open('processLog', 'r') as fh:
 		processLog = json.load(fh)
 		fh.close()
 
@@ -278,7 +278,7 @@ def getFileList():
 		for line in data: #Parse the date of the activity and we'll check if it's in the PMC
 			if line.find("<time>") != -1:
 				date = line[10:29]
-				
+
 				if date in processLog:
 					pass
 				else:
@@ -295,24 +295,24 @@ def getFileList():
 
 def makeReport(trimp, date):
 	printPMCMode()
-	reportFlag = 1 #Controls whether or not tex file gets compiled and archive is created. 
+	reportFlag = 1 #Controls whether or not tex file gets compiled and archive is created.
 	archiveLocation = 'activityArchive/' + date
 	if path.isdir(archiveLocation):
 		shutil.rmtree(archiveLocation)
-	
+
 	mkdir(archiveLocation)
-	shellCommand = 'pdflatex --output-directory ' + archiveLocation + ' --jobname=' + date + ' activityArchive/src/temp.tex' 
+	shellCommand = 'pdflatex --output-directory ' + archiveLocation + ' --jobname=' + date + ' activityArchive/src/temp.tex'
 	call(shellCommand, shell=True)
 	cleanUpCommand = 'rm ' + archiveLocation +'/*.log'
 	call(cleanUpCommand, shell=True)
 	cleanUpCommand = 'rm ' + archiveLocation +'/*.aux'
 	call(cleanUpCommand, shell=True)
-	
-	with open('processLog', 'r') as fh:           
+
+	with open('processLog', 'r') as fh:
 		processLog = json.load(fh)
 		fh.close()
 	processLog.append(date)
-	with open('processLog', 'w') as fh:           
+	with open('processLog', 'w') as fh:
 		json.dump(processLog, fh)
 		fh.close()
 
@@ -331,23 +331,27 @@ def getNotes(date, trimp, HR):
 ############################################### Main script #############
 
 
+def tripy():
+
+	connection = initializeUserData()
+	newFiles = getFileList()
+
+	if newFiles:
+		for fileName in newFiles:
+			print(fileName)
+			HR, t, date = parseFile(fileName)
+			zones, HRR, RHR = getZones()
+			tInZones = getTimeInZones(HR, t, zones)
+			trimp = calcTrimp(HR, t, HRR, RHR)
+			getNotes(date, trimp, HR)
+			addTrimpToDB(trimp, date, connection)
+			## insert propagation step here.
+			updatePMC(date, connection)
+			generatePlot(HR, t, zones, tInZones)
+			makeReport(trimp, date)
+
+	printPMCMode()
 
 
-connection = initializeUserData()
-newFiles = getFileList()
-
-if newFiles:
-	for fileName in newFiles:
-		print(fileName)
-		HR, t, date = parseFile(fileName)
-		zones, HRR, RHR = getZones()
-		tInZones = getTimeInZones(HR, t, zones)
-		trimp = calcTrimp(HR, t, HRR, RHR)
-		getNotes(date, trimp, HR)
-		addTrimpToDB(trimp, date, connection)
-		## insert propagation step here. 
-		updatePMC(date, connection)
-		generatePlot(HR, t, zones, tInZones)
-		makeReport(trimp, date)
-
-printPMCMode()
+if __name__ == "__main__":
+	tripy()
