@@ -56,23 +56,23 @@ def downloadReport(browser):
 def downloadActivity(browser):
 	waitTime = 20
 	dateXpath = '//*[@id="pageContainer"]/div/div[2]/ul/li[1]/div[2]'
-	activityXpath = '//*[@id="activity-name-edit"]/a'
+	activityXpath = '/html/body/div[1]/div[3]/div[2]/div[3]/div/div/div[2]/ul/li[1]/div[4]/div[1]/a'
 	preloaderXpath = '//*[@id="pageContainer"]/div/div[2]/div[1]'
 	gearXpath = '//*[@id="activityToolbarViewPlaceholder"]/div[2]/div[3]/button/i'
 	downloadXpath = '//*[@id="btn-export-gpx"]/a'
 	arrowXpath = '//*[@id="activityIntroViewPlaceholder"]/div[2]/button[1]/i'
 
-	browser.get('https://connect.garmin.com/modern/activities') #Activity page
+	browser.get('https://connect.garmin.com/modern/activities?activityType=running') #Activity page
 
 	#Wait for the annoying element to become presenttop
 
-	browser.switch_to.default_content()
-	WebDriverWait(browser, waitTime).until(
-		EC.presence_of_element_located((By.XPATH, preloaderXpath))
-		)
+	#browser.switch_to.default_content()
+	#WebDriverWait(browser, waitTime).until(
+#		EC.presence_of_element_located((By.XPATH, preloaderXpath))
+#		)
 	#DESTROY THE ANNOYING ELEMENT
-	annoyingElement = browser.find_element_by_xpath(preloaderXpath)
-	browser.execute_script("arguments[0].style.visibility='hidden'", annoyingElement)
+#	annoyingElement = browser.find_element_by_xpath(preloaderXpath)
+#	browser.execute_script("arguments[0].style.visibility='hidden'", annoyingElement)
 
 	#continue with life like a good boy
 	element = WebDriverWait(browser, waitTime).until(
@@ -188,7 +188,7 @@ def cleanUp(downloadDir):
 
 def login(browser):
 	credentials = queryCredentials()
-	browser.get('https://connect.garmin.com/modern/')
+	browser.get('https://connect.garmin.com/modern')
 
 	#input field is within an iframe
 	element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.ID, "gauth-widget-frame-gauth-widget")))
@@ -206,12 +206,14 @@ def login(browser):
 		passwordField = browser.find_element_by_id("password")
 		passwordField.send_keys(credentials[1])
 		passwordField.submit()
-		print("Login Success")
+	
 		# Wait for login confirmation
 		browser.switch_to.default_content()
 		element = WebDriverWait(browser, 20).until(
 			EC.element_to_be_clickable((By.XPATH, '/html/body/div/div[3]/header/div[1]/div'))
 		)
+		print("Login Success")
+
 	except:
 		print("Login Failure")
 
