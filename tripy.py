@@ -119,8 +119,9 @@ def addTrimpToDB(trimp, date, connection): # Need to add support for non existen
 
 	#First add all days since your last activity 
 	strDateFormat = "%Y-%m-%dT%H:%M:%S" #Just to extract the date from the string which includes the T, no T after this
-	dateFormatDB = "%Y-%m-%d 00:00:00" #This is the format that is in the dataBase
-	date = datetime.strptime(date, strDateFormat).strftime(dateFormatDB)
+	strDateFormatDB = "%Y-%m-%d 00:00:00"
+
+	date = datetime.strptime(date, strDateFormat).strftime(strDateFormatDB)
 
 	sql = '''SELECT date FROM userData WHERE date = ?''' 
 	cursor.execute(sql, (date,))
@@ -133,6 +134,7 @@ def addTrimpToDB(trimp, date, connection): # Need to add support for non existen
 
 	connection.commit()
 	return
+
 
 def addDataToDB(dist, elev, elapsedTime, date, connection): # Need to add support for non existent PMC
 	cursor = connection.cursor()
@@ -298,7 +300,7 @@ def printPMCMode():
 	plt.close()
 
 
-def getFileList():
+def getFileList(connection):
 	gpxFiles = []
 
 	allFiles = listdir('.')
@@ -306,12 +308,10 @@ def getFileList():
 		if re.search("[a-zA-Z0-9]*.gpx", files):
 			gpxFiles.append(files)
 	newFiles = []
-	processLog = []
 	isNewFile = 0
 
-	with open('processLog', 'r') as fh:           
-		processLog = json.load(fh)
-		fh.close()
+	strDateFormat = "%Y-%m-%dT%H:%M:%S" #Just to extract the date from the string which includes the T, no T after this
+	strDateFormatDB = "%Y-%m-%d %H:%M:%S" 
 
 	for file in gpxFiles:
 		fh = open(file, 'r') #Open file with input name
@@ -320,11 +320,15 @@ def getFileList():
 		for line in data: #Parse the date of the activity and we'll check if it's in the PMC
 			if line.find("<time>") != -1:
 				date = line[10:29]
-				
-				if date in processLog:
+				date = datetime.strptime(date, strDateFormat).strftime(strDateFormatDB)
+
+				sqlTest = '''SELECT date FROM activities WHERE date = ?''' 
+				cursor = connection.cursor()
+
+				cursor.execute(sqlTest, (date,))
+				if cursor.fetchone():
 					pass
 				else:
-					processLog.append(date)
 					newFiles.append(file)
 					isNewFile = 1
 				break
@@ -349,14 +353,6 @@ def makeReport(trimp, date):
 	call(cleanUpCommand, shell=True)
 	cleanUpCommand = 'rm ' + archiveLocation +'/*.aux'
 	call(cleanUpCommand, shell=True)
-	
-	with open('processLog', 'r') as fh:           
-		processLog = json.load(fh)
-		fh.close()
-	processLog.append(date)
-	with open('processLog', 'w') as fh:           
-		json.dump(processLog, fh)
-		fh.close()
 
 
 def getNotes(date, trimp, HR):
@@ -376,7 +372,7 @@ def getNotes(date, trimp, HR):
 
 
 connection = openDataBase()
-newFiles = getFileList()
+newFiles = getFileList(connection)
 
 if newFiles:
 	for fileName in newFiles:
