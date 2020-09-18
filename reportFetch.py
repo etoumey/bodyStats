@@ -46,15 +46,16 @@ def downloadReport(browser):
 
 	# Inside reports window, switch to default frame
 	browser.switch_to.default_content()
-	dateElement = WebDriverWait(browser, waitTime).until(
-		EC.presence_of_element_located((By.XPATH, dateXpath)))
-	dateRange = str(dateElement.text)
 
 	exportButton = WebDriverWait(browser, waitTime).until(
 		EC.element_to_be_clickable((By.XPATH, exportXpath))
 	)
 	if exportButton:
 		exportButton.click()
+
+	dateElement = WebDriverWait(browser, waitTime).until(
+	EC.presence_of_element_located((By.XPATH, dateXpath)))
+	dateRange = str(dateElement.text)
 
 	return dateRange
 
