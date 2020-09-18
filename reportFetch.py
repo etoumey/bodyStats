@@ -4,20 +4,13 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
+from openDataBase import openDataBase
 from os import getcwd,remove, listdir, rename
 from datetime import date, datetime, timedelta
 import time
 import argparse
 import getpass
 import sqlite3
-
-def initializeUserData():
-	connection = sqlite3.connect('userData.db')
-	sqlCreateTable = """ CREATE TABLE IF NOT EXISTS userData (date text NOT NULL, RHR real, SLEEP real, STRESS real, ATL real, CTL real, TSS real, PRIMARY KEY (date) ); """
-	cursor = connection.cursor()
-	cursor.execute(sqlCreateTable)
-	return connection
-
 
 def queryCredentials():
 	#This function loads credentials from the specified file. May be replaced with a user prompt not in development
@@ -279,7 +272,7 @@ def getDesiredDate(connection, reportType):
 
 def main():
 	# Initialize everything
-	connection = initializeUserData()
+	connection = openDataBase()
 	downloadFlag = 0
 
 	desiredDateRHR = getDesiredDate(connection, 'RHR')

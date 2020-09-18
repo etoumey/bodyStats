@@ -1,17 +1,10 @@
 import csv
 import sqlite3
+from openDataBase import openDataBase
 from os import listdir, rename, path
 import re
 from datetime import datetime, timedelta
 from matplotlib.patches import Rectangle
-
-
-def initializeUserData():
-	connection = sqlite3.connect('userData.db')
-	sqlCreateTable = """ CREATE TABLE IF NOT EXISTS userData (date text NOT NULL, RHR real, SLEEP real, STRESS real, ATL real, CTL real, TSS real, PRIMARY KEY (date) ); """
-	cursor = connection.cursor()
-	cursor.execute(sqlCreateTable)
-	return connection
 
 
 def getFileList():
@@ -159,7 +152,7 @@ def moveReports():
 
 
 
-connection = initializeUserData()
+connection = openDataBase()
 rhrFiles, sleepFiles, stressFiles = getFileList()
 dataRHR, datesRHR = parseRHR(rhrFiles)
 print(len(dataRHR) , len(datesRHR))
