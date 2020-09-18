@@ -12,14 +12,6 @@ import argparse
 import getpass
 import sqlite3
 
-def initializeUserData():
-	connection = sqlite3.connect('userData.db')
-	sqlCreateTable = """ CREATE TABLE IF NOT EXISTS userData (date text NOT NULL, RHR real, SLEEP real, STRESS real, ATL real, CTL real, TSS real, PRIMARY KEY (date) ); """
-	cursor = connection.cursor()
-	cursor.execute(sqlCreateTable)
-	return connection
-
-
 def queryCredentials():
 	#This function loads credentials from the specified file. May be replaced with a user prompt not in development
 	try:
@@ -280,7 +272,7 @@ def getDesiredDate(connection, reportType):
 
 def main():
 	# Initialize everything
-	connection = initializeUserData()
+	connection = openDataBase()
 	downloadFlag = 0
 
 	desiredDateRHR = getDesiredDate(connection, 'RHR')

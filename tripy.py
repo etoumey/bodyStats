@@ -19,14 +19,6 @@ import re
 import sqlite3
 
 
-def initializeUserData():
-	connection = sqlite3.connect('userData.db')
-	sqlCreateTable = """ CREATE TABLE IF NOT EXISTS userData (date text NOT NULL, RHR real, SLEEP real, STRESS real, ATL real, CTL real, TSS real, PRIMARY KEY (date) ); """
-	cursor = connection.cursor()
-	cursor.execute(sqlCreateTable)
-	return connection
-
-
 def parseFile(fileName):
 	fh = open(fileName, 'r') #Open file with input name
 	data = fh.readlines()
@@ -124,12 +116,6 @@ def calcTrimp(HR, t, HRR, RHR):
 
 def addTrimpToDB(trimp, date, connection): # Need to add support for non existent PMC
 	cursor = connection.cursor()
-	sql = '''ALTER TABLE userData ADD COLUMN TSS;'''
-	
-	try:
-		cursor.execute(sql)
-	except:
-		pass
 
 	#First add all days since your last activity 
 	strDateFormat = "%Y-%m-%dT%H:%M:%S" #Just to extract the date from the string which includes the T, no T after this
@@ -150,47 +136,28 @@ def addTrimpToDB(trimp, date, connection): # Need to add support for non existen
 
 def addDataToDB(dist, elev, elapsedTime, date, connection): # Need to add support for non existent PMC
 	cursor = connection.cursor()
-	sql = '''ALTER TABLE userData ADD COLUMN DIST;'''
-	
-	try:
-		cursor.execute(sql)
-	except:
-		pass
-
-	sql = '''ALTER TABLE userData ADD COLUMN ELEV;'''
-	
-	try:
-		cursor.execute(sql)
-	except:
-		pass
-
-	sql = '''ALTER TABLE userData ADD COLUMN ELAPSEDTIME;'''
-	
-	try:
-		cursor.execute(sql)
-	except:
-		pass
 
 	#First add all days since your last activity 
 	strDateFormat = "%Y-%m-%dT%H:%M:%S" #Just to extract the date from the string which includes the T, no T after this
-	dateFormatDB = "%Y-%m-%d 00:00:00" #This is the format that is in the dataBase
-	date = datetime.strptime(date, strDateFormat).strftime(dateFormatDB)
+	#Activity EPOCH is what will be added as the primary key
+	date = datetime.strptime(date, strDateFormat) 
 
-	sql = '''SELECT date FROM userData WHERE date = ?''' 
+	sql = '''SELECT date FROM activities WHERE date = ?''' 
 	cursor.execute(sql, (date,))
+	
 	if cursor.fetchone():
-		sql = '''UPDATE userData SET DIST = ? WHERE date = ?''' 
+		sql = '''UPDATE activities SET DIST = ? WHERE date = ?''' 
 		cursor.execute(sql, (dist, date))
-		sql = '''UPDATE userData SET ELEV = ? WHERE date = ?''' 
+		sql = '''UPDATE activities SET ELEV = ? WHERE date = ?''' 
 		cursor.execute(sql, (elev, date))
-		sql = '''UPDATE userData SET ELAPSEDTIME = ? WHERE date = ?''' 
+		sql = '''UPDATE activities SET ELAPSEDTIME = ? WHERE date = ?''' 
 		cursor.execute(sql, (elapsedTime, date))
 	else:
-		sql = '''INSERT INTO userData(date, DIST) VALUES(?, ?)''' 
+		sql = '''INSERT INTO activities(date, DIST) VALUES(?, ?)''' 
 		cursor.execute(sql, (date, dist))
-		sql = '''INSERT INTO userData(date, ELEV) VALUES(?, ?)''' 
+		sql = '''UPDATE activities SET ELEV = ? WHERE date = ?''' 
 		cursor.execute(sql, (date, elev))
-		sql = '''INSERT INTO userData(date, ELAPSEDTIME) VALUES(?, ?)''' 
+		sql = '''UPDATE activities SET ELAPSEDTIME = ? WHERE date = ?''' 
 		cursor.execute(sql, (date, elapsedTime))
 
 	connection.commit()
@@ -408,7 +375,7 @@ def getNotes(date, trimp, HR):
 
 
 
-connection = initializeUserData()
+connection = openDataBase()
 newFiles = getFileList()
 
 if newFiles:
