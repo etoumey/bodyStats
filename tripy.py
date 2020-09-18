@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from matplotlib.dates import DateFormatter
+from openDataBase import openDataBase
 from scipy.stats import gaussian_kde
 import json
 from datetime import datetime, timedelta
