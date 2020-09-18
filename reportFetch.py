@@ -104,13 +104,13 @@ def downloadActivity(browser):
 
 def renameReport(dateRange, report):
 	if report == 'RHR':
-		OldFileName = 'WELLNESS_RESTING_HEART_RATE.csv'
+		OldFileName = 'Resting Heart Rate.csv'
 		NewFileString = 'RHR_'
 	elif report == 'SLEEP':
-		OldFileName = 'SLEEP_SLEEP_DURATION.csv'
+		OldFileName = 'Sleep Time.csv'
 		NewFileString = 'SLEEP_'
 	elif report == 'STRESS':
-		OldFileName = 'WELLNESS_AVERAGE_STRESS.csv'
+		OldFileName = 'Stress Level.csv'
 		NewFileString = 'STRESS_'
 
 	if dateRange:
@@ -177,7 +177,7 @@ def browserInit(downloadDir):
 
 	#Setup browser as headless
 	opts = Options()
-	opts.headless = True
+	opts.headless = False
 
 	# Instantiate a Firefox browser object with the above-specified profile settings
 	print("Browser preferences configured")
