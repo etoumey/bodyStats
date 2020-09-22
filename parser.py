@@ -9,8 +9,9 @@ from matplotlib.patches import Rectangle
 
 def getFileList():
 	RHRFiles = []
-	stressFiles = []
 	sleepFiles = []
+	stressFiles = []
+	stepsFiles = []
 
 	allFiles = listdir('.')
 	ii = 0
@@ -19,10 +20,12 @@ def getFileList():
 			RHRFiles.append(files)
 		elif (re.search("SLEEP_\d{8}_\d{8}.csv", files)):
 			sleepFiles.append(files)
+		elif (re.search("STEPS_\d{8}_\d{8}.csv", files)):
+			stepsFiles.append(files)
 		elif (re.search("STRESS_\d{8}_\d{8}.csv", files)):
 			stressFiles.append(files)
 
-	return RHRFiles, sleepFiles, stressFiles
+	return RHRFiles, sleepFiles, stepsFiles, stressFiles
 
 
 def parseRHR(rhrFiles):
@@ -63,6 +66,25 @@ def parseSleep(sleepFiles):
 		dateArray.extend(pullDates(files, DOW))
 		del DOW[:]
 	return dataSleep, dateArray
+
+
+def parseSteps(stepsFiles):
+	dataSteps = []
+	dateArray = []
+	DOW = []
+
+	for files in stepsFiles:
+		ii = 0
+		with open(files, 'r') as fh:
+			tempSteps = csv.reader(fh)
+			for rows in tempSteps:
+				if (ii > 1 and ii <= 8):
+					dataSteps.append(float(rows[1]))
+					DOW.append(rows[0])
+				ii = ii + 1
+		dateArray.extend(pullDates(files, DOW))
+		del DOW[:]
+	return dataSteps, dateArray
 
 
 def parseStress(stressFiles):
@@ -153,13 +175,16 @@ def moveReports():
 
 
 connection = openDataBase()
-rhrFiles, sleepFiles, stressFiles = getFileList()
+rhrFiles, sleepFiles, stepsFiles, stressFiles = getFileList()
 dataRHR, datesRHR = parseRHR(rhrFiles)
-print(len(dataRHR) , len(datesRHR))
 dataSleep, datesSleep = parseSleep(sleepFiles)
+dataSteps, datesSteps = parseSteps(stepsFiles)
 dataStress, datesStress = parseStress(stressFiles)
+
+
 buildDB(connection, datesRHR, dataRHR, 'RHR')
 buildDB(connection, datesSleep, dataSleep, 'SLEEP')
+buildDB(connection, datesSteps, dataSteps, 'STEPS')
 buildDB(connection, datesStress, dataStress, 'STRESS')
 connection.close()
 moveReports()

@@ -102,6 +102,9 @@ def renameReport(dateRange, report):
 	elif report == 'SLEEP':
 		OldFileName = 'Sleep Time.csv'
 		NewFileString = 'SLEEP_'
+	elif report == 'STEPS':
+		OldFileName = 'Steps.csv'
+		NewFileString = 'STEPS_'
 	elif report == 'STRESS':
 		OldFileName = 'Stress Level.csv'
 		NewFileString = 'STRESS_'
@@ -280,8 +283,9 @@ def main():
 	desiredDateRHR = getDesiredDate(connection, 'RHR')
 	desiredDateStress = getDesiredDate(connection, 'STRESS')
 	desiredDateSleep = getDesiredDate(connection, 'SLEEP')
+	desiredDateSteps = getDesiredDate(connection, 'STEPS')
 
-	if (desiredDateRHR or desiredDateStress or desiredDateSleep):
+	if (desiredDateRHR or desiredDateStress or desiredDateSleep or desiredDateSteps):
 		downloadDir = getcwd()
 		# Head to garmin connect login page
 		browser = browserInit(downloadDir)
@@ -302,6 +306,7 @@ def main():
 		except:
 			print("Error fetching RHR Data...")
 			clickArrow(browser)
+
 
 
 	if desiredDateStress:
@@ -338,7 +343,25 @@ def main():
 			print("Error Fetching Sleep Data...")
 			clickArrow(browser)
 
-	if (desiredDateRHR or desiredDateStress or desiredDateSleep):
+
+
+	if desiredDateSteps:
+		browser.get('https://connect.garmin.com/modern/report/29/wellness/last_seven_days') #Steps report
+		downloadFlag = 1
+
+	while downloadFlag:
+		try:
+			dateRangeSteps = downloadReport(browser)
+			stepsReport = renameReport(dateRangeSteps, 'STEPS')
+			print("Steps Download Success! %s" % stepsReport)
+			downloadFlag = setDownloadFlag(desiredDateSteps, dateRangeSteps)
+			if downloadFlag:
+				clickArrow(browser)
+		except:
+			print("Error fetching Step Data...")
+			clickArrow(browser)
+
+	if (desiredDateRHR or desiredDateStress or desiredDateSleep or desiredDateSteps):
 		downloadActivity(browser)
 		browser.quit()
 
