@@ -136,7 +136,7 @@ def addTrimpToDB(trimp, date, connection): # Need to add support for non existen
 	return
 
 
-def addDataToDB(dist, elev, elapsedTime, date, connection): # Need to add support for non existent PMC
+def addDataToDB(dist, elev, elapsedTime, trimp, date, connection): # Need to add support for non existent PMC
 	cursor = connection.cursor()
 
 	#First add all days since your last activity 
@@ -150,17 +150,16 @@ def addDataToDB(dist, elev, elapsedTime, date, connection): # Need to add suppor
 	if cursor.fetchone():
 		sql = '''UPDATE activities SET DIST = ? WHERE date = ?''' 
 		cursor.execute(sql, (dist, date))
-		sql = '''UPDATE activities SET ELEV = ? WHERE date = ?''' 
-		cursor.execute(sql, (elev, date))
-		sql = '''UPDATE activities SET ELAPSEDTIME = ? WHERE date = ?''' 
-		cursor.execute(sql, (elapsedTime, date))
 	else:
 		sql = '''INSERT INTO activities(date, DIST) VALUES(?, ?)''' 
 		cursor.execute(sql, (date, dist))
-		sql = '''UPDATE activities SET ELEV = ? WHERE date = ?''' 
-		cursor.execute(sql, (date, elev))
-		sql = '''UPDATE activities SET ELAPSEDTIME = ? WHERE date = ?''' 
-		cursor.execute(sql, (date, elapsedTime))
+		
+	sql = '''UPDATE activities SET ELEV = ? WHERE date = ?''' 
+	cursor.execute(sql, (elev, date))
+	sql = '''UPDATE activities SET ELAPSEDTIME = ? WHERE date = ?''' 
+	cursor.execute(sql, (elapsedTime, date))
+	sql = '''UPDATE activities SET TRIMP = ? WHERE date = ?''' 
+	cursor.execute(sql, (trimp, date))
 
 	connection.commit()
 	return
@@ -383,7 +382,7 @@ if newFiles:
 		trimp = calcTrimp(HR, t, HRR, RHR)
 		getNotes(date, trimp, HR)
 		addTrimpToDB(trimp, date, connection)
-		addDataToDB(dist, elev, elapsedTime, date, connection)
+		addDataToDB(dist, elev, elapsedTime, trimp, date, connection)
 		## insert propagation step here. 
 		updatePMC(date, connection)
 		generatePlot(HR, t, zones, tInZones)
