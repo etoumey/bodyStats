@@ -127,7 +127,7 @@ def addTrimpToDB(trimp, date, connection): # Need to add support for non existen
 	cursor.execute(sql, (date,))
 	row = cursor.fetchone()
 
-	if row[0]:
+	if row:
 		dataBaseEntryTSS = trimp + float(row[1])
 		sql = '''UPDATE userData SET TSS = ? WHERE date = ?''' 
 		cursor.execute(sql, (dataBaseEntryTSS, date))
