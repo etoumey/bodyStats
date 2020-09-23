@@ -5,6 +5,8 @@
 *.pyc
 *.gpx
 
+node_modules
+
 # For macOS support
 .DS_STORE
 =======
