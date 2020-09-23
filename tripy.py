@@ -123,11 +123,14 @@ def addTrimpToDB(trimp, date, connection): # Need to add support for non existen
 
 	date = datetime.strptime(date, strDateFormat).strftime(strDateFormatDB)
 
-	sql = '''SELECT date FROM userData WHERE date = ?''' 
+	sql = '''SELECT date, IFNULL(TSS,0) FROM userData WHERE date = ?''' 
 	cursor.execute(sql, (date,))
-	if cursor.fetchone():
+	row = cursor.fetchone()
+
+	if row[0]:
+		dataBaseEntryTSS = trimp + float(row[1])
 		sql = '''UPDATE userData SET TSS = ? WHERE date = ?''' 
-		cursor.execute(sql, (trimp, date))
+		cursor.execute(sql, (dataBaseEntryTSS, date))
 	else:
 		sql = '''INSERT INTO userData(date, TSS) VALUES(?, ?)''' 
 		cursor.execute(sql, (date, trimp))
