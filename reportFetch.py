@@ -34,8 +34,8 @@ def queryCredentials():
 
 def downloadReport(browser):
 	waitTime = 20 #Seconds to wait on landing page to load
-	exportXpath = '//*[@id="pageContainer"]/div/div[1]/div[2]/div/button'
-	dateXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[2]'
+	exportXpath = '/html/body/div/div[3]/div[2]/div[3]/div/div[1]/div[2]/div/button'
+	dateXpath = '/html/body/div/div[3]/div[2]/div[3]/div/div[2]/div[2]/div[3]/div/span[2]'
 
 	# Inside reports window, switch to default frame
 	browser.switch_to.default_content()
@@ -223,8 +223,8 @@ def login(browser):
 
 def clickArrow(browser):
 	# Only need arrow if you want to do multiple weeks at a time.
-	arrowXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[1]/button[1]'
-	dateXpath = '//*[@id="pageContainer"]/div/div[2]/div[2]/div[2]/div/span[2]'
+	arrowXpath = '/html/body/div/div[3]/div[2]/div[3]/div/div[2]/div[2]/div[3]/div/span[1]/button[1]'
+	dateXpath = '/html/body/div/div[3]/div[2]/div[3]/div/div[2]/div[2]/div[3]/div/span[2]]'
 	waitTime = 20
 
 	browser.switch_to.default_content()
