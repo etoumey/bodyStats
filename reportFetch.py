@@ -173,7 +173,7 @@ def browserInit(downloadDir):
 
 	#Setup browser as headless
 	opts = Options()
-	opts.headless = True
+	opts.headless = False
 
 	# Instantiate a Firefox browser object with the above-specified profile settings
 	print("Browser preferences configured")
@@ -224,7 +224,7 @@ def login(browser):
 def clickArrow(browser):
 	# Only need arrow if you want to do multiple weeks at a time.
 	arrowXpath = '/html/body/div/div[3]/div[2]/div[3]/div/div[2]/div[2]/div[3]/div/span[1]/button[1]'
-	dateXpath = '/html/body/div/div[3]/div[2]/div[3]/div/div[2]/div[2]/div[3]/div/span[2]]'
+	dateXpath = '/html/body/div/div[3]/div[2]/div[3]/div/div[2]/div[2]/div[3]/div/span[2]'
 	waitTime = 20
 
 	browser.switch_to.default_content()
@@ -300,6 +300,7 @@ def main():
 			dateRangeRHR = downloadReport(browser)
 			RHRReport = renameReport(dateRangeRHR, 'RHR')
 			print("RHR Download Success! %s" % RHRReport)
+			print(desiredDateRHR, dateRangeRHR)
 			downloadFlag = setDownloadFlag(desiredDateRHR, dateRangeRHR)
 			if downloadFlag:
 				clickArrow(browser)
