@@ -5,12 +5,13 @@ const path = require('path')
 function createWindow () {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    icon: path.join(__dirname, 'logoIcon.png'),
+    width: 1200,
+    height: 800,
+    icon: path.join('../docs/logoIcon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
-    }
+    },
+    backgroundColor: '#0f174d'
   })
 
   // and load the index.html of the app.
