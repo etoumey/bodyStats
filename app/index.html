@@ -6,13 +6,29 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
     <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
     <link rel="stylesheet" type="text/css" href="main.css" />
+
     <title>bodyStats</title>
   </head>
   <body>
-    <img src="../docs/logoIcon.png" width=:128" height="128">
-    hello, please get smaller
+    <div class="dashboard">
+      <div class="hamburger" id="ham">&#9776;
+        <div class="sidebar" id="ham">
+            <ul class="tabs">
+                <li class="active">Dashboard</li>
+                <li>Analytics</li>
+                <li>Settings</li>
+            </ul>
+        </div>
+      </div>
+        <div class="content">
+            <!-- Dashboard content goes here -->
+        </div>
 
-    <!-- You can also require other files to run in this process -->
-    <script src="./renderer.js"></script>
-  </body>
+    </div>
+  <center>
+    <button id="myButton">Click Me</button>
+  </center>
+    <script src="renderer.js"></script>
+
+</body>
 </html>

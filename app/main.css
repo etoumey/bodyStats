@@ -1,4 +1,51 @@
-html,
 body {
-    background-color: #0f174d;
+    margin: 0;
+    padding: 0;
+}
+
+.dashboard {
+    display: flex;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    transition: transform 0.3s ease;
+
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.tabs {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.tabs li {
+    padding: 10px 0;
+    cursor: pointer;
+}
+
+.tabs li.active {
+    background-color: #555;
+}
+
+.content {
+    flex: 1;
+    padding: 20px;
+}
+
+.hamburger {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    font-size: 24px;
+    cursor: pointer;
 }
